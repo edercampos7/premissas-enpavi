@@ -383,6 +383,32 @@
   .sim-lines thead th, .sim-lines tbody td{ padding:7px 9px; font-size:12.5px; }
   .sim-lines td input{ width:66px; }
   #sec-retiradas .grid-2{ align-items:start; }
+
+  .month-pick{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin: 6px 0 14px; }
+  .month-pick .mp-label{ width:100%; font-size:12px; color: var(--muted); text-transform:uppercase; letter-spacing:0.06em; font-weight:600; }
+  .month-pick select{ font: inherit; font-size:15px; font-weight:600; color: var(--ink); background: var(--surface); border:1px solid var(--line-strong); border-radius:8px; padding:8px 12px; min-width:190px; cursor:pointer; }
+  .month-pick select:focus{ outline:2px solid var(--accent); outline-offset:1px; }
+  .month-pick .btn{ padding:8px 13px; }
+  .month-pick #mp-prev, .month-pick #mp-next{ font-size:17px; line-height:1; padding:7px 13px; }
+  .month-pick .btn:disabled{ opacity:0.4; cursor:default; }
+  .kpis.month-kpis{ margin-bottom:16px; }
+  .kpis.month-kpis .kpi{ min-height:0; }
+  .kpis.month-kpis .kpi .label{ min-height:0; }
+  .chart .mark-line{ stroke: var(--ink); stroke-width:1.2; stroke-dasharray:3 3; }
+  .chart .mark-label{ font-size:12px; font-weight:600; fill: var(--ink); }
+  .chart .mark-dot{ stroke: var(--surface); stroke-width:1.5; }
+  #month-body tr{ cursor:pointer; }
+  #month-body tr:hover td{ background: var(--surface-2); }
+  #month-body tr.sel td{ background: color-mix(in srgb, var(--accent) 16%, var(--surface)); }
+  #month-body tr.sel td:first-child{ box-shadow: inset 3px 0 0 var(--accent); font-weight:600; }
+  @media (max-width: 460px){ .month-pick select{ flex:1; min-width:0; } .month-pick #mp-corte{ width:100%; } }
+  @media (max-width: 460px){
+    .kpis.month-kpis{ grid-template-columns: 1fr 1fr; }
+    .kpis.month-kpis .kpi{ padding:12px 12px; gap:4px; }
+    .kpis.month-kpis .kpi .label{ font-size:10.5px; letter-spacing:0.05em; }
+    .kpis.month-kpis .kpi .value{ font-size:15px; }
+    .kpis.month-kpis .kpi .note{ font-size:11px; }
+  }
 </style>
 </head>
 <body>
@@ -463,7 +489,7 @@
   </section>
 
   <section id="sec-outros">
-    <div class="section-head"><h2><span class="num">5</span>Usina Caçapava, custo 029, matriz e obras antigas</h2><div class="desc">Fluxos que não são obras da Ata</div></div>
+    <div class="section-head"><h2><span class="num">5</span>Usina Caçapava, despesas Enpavi 029, matriz e obras antigas</h2><div class="desc">Fluxos que não são obras da Ata</div></div>
     <div class="cards-3" id="outros-cards"></div>
   </section>
 
@@ -479,15 +505,23 @@
   <section id="sec-mensal">
     <div class="section-head"><h2><span class="num">7</span>Encontro de contas mês a mês</h2><div class="desc">Aba ENCONTRO ENPAVI: saldo acumulado e juros simples</div></div>
     <p class="lead" id="mensal-lead"></p>
+    <div class="month-pick">
+      <label class="mp-label" for="mp-select">Mês de visualização</label>
+      <button type="button" class="btn ghost" id="mp-prev" aria-label="Mês anterior">‹</button>
+      <select id="mp-select"></select>
+      <button type="button" class="btn ghost" id="mp-next" aria-label="Próximo mês">›</button>
+      <button type="button" class="btn ghost" id="mp-corte">Ir para o mês de corte</button>
+    </div>
+    <div class="kpis month-kpis" id="mp-kpis"></div>
     <div class="card">
       <div class="legend" id="line-legend"></div>
       <div class="chart" id="line-chart"></div>
     </div>
-    <div class="table-wrap tall" style="margin-top:16px">
+    <div class="table-wrap tall" id="month-wrap" style="margin-top:16px">
       <table class="compact">
         <thead><tr>
-          <th class="static">Mês</th><th class="static num">Parte Enpavi obras</th><th class="static num">Custo 029</th><th class="static num">Obras antigas</th>
-          <th class="static num">Retiradas</th><th class="static num">Provisões</th><th class="static num">Saldo sem juros</th><th class="static num">Juros do mês</th>
+          <th class="static">Mês</th><th class="static num">Participação Enpavi</th><th class="static num">Despesas Enpavi 029</th><th class="static num">Obras antigas</th>
+          <th class="static num">Provisões</th><th class="static num">Saldo sem juros</th><th class="static num">Juros do mês</th>
           <th class="static num">Juros acumulados</th><th class="static num">Saldo com juros</th>
         </tr></thead>
         <tbody id="month-body"></tbody>
@@ -688,7 +722,7 @@ function parametrosDaPlanilha(D){
     consorcio: { nome: 'Consórcios', cor: 'var(--cat-3)' },
     matriz:    { nome: 'Matriz', cor: 'var(--cat-5)' },
     usina:     { nome: 'Usina', cor: 'var(--cat-4)' },
-    c029:      { nome: 'Custo 029', cor: 'var(--cat-2)' },
+    c029:      { nome: 'Despesas Enpavi 029', cor: 'var(--cat-2)' },
     antiga:    { nome: 'Obras antigas', cor: 'var(--treasury)' },
     adm:       { nome: 'Adm. central', cor: 'var(--muted)' },
     retirada:  { nome: 'Retiradas', cor: 'var(--critical)' },
@@ -709,8 +743,8 @@ function parametrosDaPlanilha(D){
 
   var R = D.resumo;
   var kpiDefs = [
-    { k: 'K4', t: 'Parte Enpavi nas obras, usina, matriz e adm. central' },
-    { k: 'K5', t: 'Custo 029 (Enpavi direto)' },
+    { k: 'K4', t: 'Participação Enpavi (obras, usina, matriz e adm. central)' },
+    { k: 'K5', t: 'Despesas Enpavi 029' },
     { k: 'K6', t: 'Obras antigas (Enpavi × DP)' },
     { k: 'K7', t: 'Retiradas / adiantamentos' },
     { k: 'K8', t: 'Provisões na data de corte' },
@@ -762,7 +796,7 @@ function parametrosDaPlanilha(D){
   });
   var items = document.getElementById('items-grid');
   [
-    { t: 'Além das obras', p: 'Entram também a matriz (impostos), a Usina Caçapava, o custo 029 (100% Enpavi) e as obras antigas (diferença Enpavi × DP Barros).' },
+    { t: 'Além das obras', p: 'Entram também a matriz (impostos), a Usina Caçapava, as despesas Enpavi 029 (100% Enpavi) e as obras antigas (diferença Enpavi × DP Barros).' },
     { t: 'Ajustes', p: 'Administração central sobre a receita das obras, retiradas já recebidas e provisões (retenções e IR a pagar) na data de corte.' },
     { t: 'Juros', p: 'Sobre o saldo de cada mês corre juros simples de ' + fmtPct(D.params.juros, 1) + ' ao mês, da data de início até a data de corte.' }
   ].forEach(function(s){ var c = el('div', 'item'); c.appendChild(el('div', 'it-t', s.t)); c.appendChild(el('p', null, s.p)); items.appendChild(c); });
@@ -899,7 +933,7 @@ function parametrosDaPlanilha(D){
       'Fluxo completo da usina (aba CAÇAPAV, extraída do Dashboard da usina): faturamento menos custos e retiradas. Entra mês a mês e corre juros, como as obras.');
   });
   D.linhas.filter(function(l){ return l.tipo === 'c029'; }).forEach(function(l){
-    miniCard('Custo 029', 'Lançamento direto da Enpavi · ' + fmtPct(l.G), l.H, l.J, 'Custos pagos diretamente pela/para a Enpavi (aba ENPAVI - CUSTO 029). Entra 100% na conta da Enpavi.');
+    miniCard('Despesas Enpavi 029', 'Lançamento direto da Enpavi · ' + fmtPct(l.G), l.H, l.J, 'Custos pagos diretamente pela/para a Enpavi (aba ENPAVI - CUSTO 029). Entra 100% na conta da Enpavi.');
   });
   D.linhas.filter(function(l){ return l.tipo === 'matriz'; }).forEach(function(l){
     miniCard('Matriz', 'Impostos da matriz · ' + fmtPct(l.G) + ' efetivo', l.H, l.J, 'Só os impostos da CUSTO MATRIZ (ISS, PIS/COFINS, IRPJ/CSLL), divididos pelo mesmo critério das obras.');
@@ -977,9 +1011,11 @@ function parametrosDaPlanilha(D){
     for (; v <= max + step * 0.5; v += step) t.push(v);
     return t;
   }
-  function lineChart(box, idx0, idx1, series, size){
+  function lineChart(box, idx0, idx1, series, size, opts){
     box.innerHTML = '';
-    var W = (size && size.w) || 1100, Hh = (size && size.h) || 340, ml = 78, mr = 16, mt = 14, mb = 34;
+    opts = opts || {};
+    var temMarca = opts.marker != null;
+    var W = (size && size.w) || 1100, Hh = (size && size.h) || 340, ml = 78, mr = 16, mt = temMarca ? 26 : 14, mb = 34;
     var svg = sv('svg', { viewBox: '0 0 ' + W + ' ' + Hh, role: 'img', 'aria-label': 'Gráfico de linhas' });
     var all = [];
     series.forEach(function(s){ for (var i = idx0; i <= idx1; i++) all.push(s.values[i]); });
@@ -1004,6 +1040,12 @@ function parametrosDaPlanilha(D){
       for (var i = idx0; i <= idx1; i++) d += (i === idx0 ? 'M' : 'L') + X(i).toFixed(1) + ' ' + Y(s.values[i]).toFixed(1);
       svg.appendChild(sv('path', { d: d, fill: 'none', stroke: s.color, 'stroke-width': s.width || 2.2, 'stroke-dasharray': s.dash || '', 'stroke-linejoin': 'round' }));
     });
+    if (temMarca) {
+      var xm = X(opts.marker), anc = xm > W - 90 ? 'end' : (xm < ml + 60 ? 'start' : 'middle');
+      svg.appendChild(sv('line', { 'class': 'mark-line', x1: xm, x2: xm, y1: mt, y2: Hh - mb }));
+      svg.appendChild(sv('text', { 'class': 'mark-label', x: xm, y: mt - 9, 'text-anchor': anc }, fmtMes(D.meses[opts.marker])));
+      series.forEach(function(s){ svg.appendChild(sv('circle', { 'class': 'mark-dot', r: 4.5, cx: xm, cy: Y(s.values[opts.marker]), fill: s.color })); });
+    }
     var hl = sv('line', { 'class': 'hover-line', y1: mt, y2: Hh - mb, x1: -10, x2: -10, visibility: 'hidden' });
     svg.appendChild(hl);
     var dots = series.map(function(s){ var c = sv('circle', { r: 4, fill: s.color, cx: -10, cy: -10, visibility: 'hidden' }); svg.appendChild(c); return c; });
@@ -1020,6 +1062,14 @@ function parametrosDaPlanilha(D){
       showTip(evt.clientX, rect.top + Y(series[series.length - 1].values[i]) / Hh * rect.height, html);
     }
     hit.addEventListener('mousemove', move);
+    if (opts.onPick) {
+      hit.style.cursor = 'pointer';
+      hit.addEventListener('click', function(evt){
+        var rect = svg.getBoundingClientRect();
+        var i = Math.round(idx0 + ((evt.clientX - rect.left) / rect.width * W - ml) / (W - ml - mr) * nx);
+        opts.onPick(Math.max(idx0, Math.min(idx1, i)));
+      });
+    }
     hit.addEventListener('mouseleave', function(){ hideTip(); hl.setAttribute('visibility', 'hidden'); dots.forEach(function(d){ d.setAttribute('visibility', 'hidden'); }); });
     box.appendChild(svg);
   }
@@ -1033,29 +1083,75 @@ function parametrosDaPlanilha(D){
   var first = 0;
   for (var i0 = 0; i0 <= cut; i0++) { if (Math.abs(EN.AJ[i0]) > 0.5 || Math.abs(EN.AM[i0]) > 0.5) { first = Math.max(0, i0 - 1); break; } }
   document.getElementById('mensal-lead').innerHTML = 'Para cada mês, a planilha soma o resultado acumulado de cada fluxo até aquele mês (já multiplicado pelo % da Enpavi) e calcula os juros do mês sobre esse saldo. ' +
-    'O primeiro mês com movimento é <b>' + fmtMes(D.meses[first + (first > 0 ? 1 : 0)]) + '</b>; o último é o mês de corte, <b>' + fmtMes(D.meses[cut]) + '</b>, quando entram também a adm. central, as retiradas e as provisões.';
+    'O primeiro mês com movimento é <b>' + fmtMes(D.meses[first + (first > 0 ? 1 : 0)]) + '</b>; o último é o mês de corte, <b>' + fmtMes(D.meses[cut]) + '</b>, quando entram também a adm. central, as retiradas e as provisões. Escolha o mês abaixo (ou clique no gráfico ou numa linha da tabela) para ver os valores daquele mês.';
   var lineSeries = [
     { name: 'Saldo sem juros', color: cssVar('--cat-1') || '#2a78d6', values: EN.AJ },
     { name: 'Juros acumulados', color: cssVar('--accent') || '#b5661a', values: EN.AM, dash: '6 4' },
     { name: 'Saldo com juros', color: cssVar('--critical') || '#b3261e', values: EN.AN, width: 3 }
   ];
   legend(document.getElementById('line-legend'), lineSeries);
-  lineChart(document.getElementById('line-chart'), first, cut, lineSeries);
   (function(){
-    var body = document.getElementById('month-body');
+    var body = document.getElementById('month-body'), wrap = document.getElementById('month-wrap');
+    var sel = document.getElementById('mp-select'), cards = document.getElementById('mp-kpis');
+    var bPrev = document.getElementById('mp-prev'), bNext = document.getElementById('mp-next'), bCorte = document.getElementById('mp-corte');
+    var linhas = {};
     for (var i = cut; i >= first; i--) {
       var tr = el('tr', i === cut ? 'cut' : '');
       tr.appendChild(el('td', 'date', fmtMes(D.meses[i]) + (i === cut ? ' (corte)' : '')));
-      [EN.AD[i], EN.AE[i], EN.AF[i], (EN.AG[i] || 0) + (EN.AH[i] || 0), EN.AI[i], EN.AJ[i], EN.AL[i], EN.AM[i], EN.AN[i]].forEach(function(v){ tr.appendChild(el('td', 'num tabular ' + sgn(v), fmtBRL(v))); });
+      [EN.AD[i], EN.AE[i], EN.AF[i], EN.AI[i], EN.AJ[i], EN.AL[i], EN.AM[i], EN.AN[i]].forEach(function(v){ tr.appendChild(el('td', 'num tabular ' + sgn(v), fmtBRL(v))); });
+      tr.setAttribute('data-i', i);
+      tr.title = 'Ver ' + fmtMes(D.meses[i]);
       body.appendChild(tr);
+      linhas[i] = tr;
+      var o = document.createElement('option'); o.value = String(i); o.textContent = fmtMes(D.meses[i]) + (i === cut ? ' (corte)' : '');
+      sel.appendChild(o);
     }
+    function mostrar(i, rolar){
+      i = Math.max(first, Math.min(cut, i));
+      sel.value = String(i);
+      bPrev.disabled = i <= first; bNext.disabled = i >= cut; bCorte.disabled = i === cut;
+      var taxa = fmtPct(D.params.juros, 1);
+      var defs = [
+        { t: 'Participação Enpavi', v: EN.AD[i], n: 'Acumulado até ' + fmtMes(D.meses[i]) },
+        { t: 'Despesas Enpavi 029', v: EN.AE[i], n: 'Acumulado até ' + fmtMes(D.meses[i]) },
+        { t: 'Obras antigas', v: EN.AF[i], n: 'Acumulado até ' + fmtMes(D.meses[i]) },
+        { t: 'Provisões', v: EN.AI[i], n: i === cut ? 'Entram no mês de corte' : 'Só no mês de corte' },
+        { t: 'Saldo sem juros', v: EN.AJ[i], n: 'Soma do mês', hl: true },
+        { t: 'Juros do mês', v: EN.AL[i], n: 'Saldo sem juros × ' + taxa },
+        { t: 'Juros acumulados', v: EN.AM[i], n: 'Soma dos juros até o mês' },
+        { t: 'Saldo com juros', v: EN.AN[i], n: (EN.AN[i] < -0.005 ? 'A favor da Tríade' : (EN.AN[i] > 0.005 ? 'A favor da Enpavi' : 'Zerado')), hl: true }
+      ];
+      cards.innerHTML = '';
+      defs.forEach(function(d){
+        var k = el('div', 'kpi' + (d.hl ? ' hl' : ''));
+        k.appendChild(el('div', 'label', d.t));
+        k.appendChild(el('div', 'value tabular ' + (d.v < -0.005 ? 'critical' : (d.v > 0.005 ? 'good' : '')), fmtBRL(d.v)));
+        k.appendChild(el('div', 'note', d.n));
+        cards.appendChild(k);
+      });
+      lineChart(document.getElementById('line-chart'), first, cut, lineSeries, null, { marker: i, onPick: function(j){ mostrar(j, true); } });
+      Object.keys(linhas).forEach(function(k){ linhas[k].classList.toggle('sel', +k === i); });
+      if (rolar) {
+        var th = wrap.querySelector('thead'), tr = linhas[i];
+        wrap.scrollTop += tr.getBoundingClientRect().top - wrap.getBoundingClientRect().top - (th ? th.getBoundingClientRect().height : 0) - 4;
+      }
+    }
+    sel.addEventListener('change', function(){ mostrar(+sel.value, true); });
+    bPrev.addEventListener('click', function(){ mostrar(+sel.value - 1, true); });
+    bNext.addEventListener('click', function(){ mostrar(+sel.value + 1, true); });
+    bCorte.addEventListener('click', function(){ mostrar(cut, true); });
+    body.addEventListener('click', function(evt){
+      var tr = evt.target.closest ? evt.target.closest('tr[data-i]') : null;
+      if (tr) mostrar(+tr.getAttribute('data-i'), false);
+    });
+    mostrar(cut, false);
   })();
 
   // ---------------- 8. cascata ----------------
   (function(){
     var box = document.getElementById('waterfall');
     var steps = [
-      { l: 'Parte Enpavi obras', v: R.K4 }, { l: 'Custo 029', v: R.K5 }, { l: 'Obras antigas', v: R.K6 },
+      { l: 'Participação Enpavi', v: R.K4 }, { l: 'Despesas Enpavi 029', v: R.K5 }, { l: 'Obras antigas', v: R.K6 },
       { l: 'Retiradas', v: R.K7 }, { l: 'Provisões', v: R.K8 }, { l: 'Saldo sem juros', v: R.K9, total: true },
       { l: 'Juros', v: R.K10 }, { l: 'Saldo com juros', v: R.K11, total: true }
     ];
@@ -1099,7 +1195,7 @@ function parametrosDaPlanilha(D){
   sJuros.value = (base.juros * 100).toFixed(2);
   for (var mi = cut; mi >= 0; mi--) { if (mi < first) break; var o = el('option', null, fmtMes(D.meses[mi])); o.value = mi; sCorte.appendChild(o); }
   sCorte.value = String(cut);
-  var togDefs = [['adm', 'Adm. central'], ['retirada', 'Retiradas'], ['provisoes', 'Provisões'], ['antigas', 'Obras antigas'], ['c029', 'Custo 029'], ['usina', 'Usina Caçapava'], ['matriz', 'Matriz']];
+  var togDefs = [['adm', 'Adm. central'], ['retirada', 'Retiradas'], ['provisoes', 'Provisões'], ['antigas', 'Obras antigas'], ['c029', 'Despesas Enpavi 029'], ['usina', 'Usina Caçapava'], ['matriz', 'Matriz']];
   var togBox = document.getElementById('s-toggles');
   togDefs.forEach(function(t){
     var lab = el('label', 'chip-toggle'), cb = el('input'); cb.type = 'checkbox'; cb.checked = true; cb.dataset.k = t[0];
@@ -1141,7 +1237,7 @@ function parametrosDaPlanilha(D){
     togBox.querySelectorAll('input').forEach(function(cb){ cb.checked = true; });
     runSim();
   });
-  var resLabels = { K4: 'Parte Enpavi obras, usina, matriz e adm.', K5: 'Custo 029', K6: 'Obras antigas', K7: 'Retiradas', K8: 'Provisões', K9: 'Saldo sem juros', K10: 'Juros', K11: 'Saldo com juros' };
+  var resLabels = { K4: 'Participação Enpavi (obras, usina, matriz e adm.)', K5: 'Despesas Enpavi 029', K6: 'Obras antigas', K7: 'Retiradas', K8: 'Provisões', K9: 'Saldo sem juros', K10: 'Juros', K11: 'Saldo com juros' };
   function runSim(){
     var s = simular(D, sim);
     var body = document.getElementById('s-res'); body.innerHTML = '';
