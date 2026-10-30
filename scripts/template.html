@@ -430,7 +430,7 @@
 
   <nav class="toc" id="toc" aria-label="Seções">
     <a href="#sec-resumo">Resumo</a>
-    <a href="#sec-como">Como funciona</a>
+    <a href="#sec-como">Considerações gerais</a>
     <a href="#sec-parametros">Parâmetros</a>
     <a href="#sec-participacoes">Participações</a>
     <a href="#sec-adm">Adm. central</a>
@@ -449,7 +449,7 @@
   </section>
 
   <section id="sec-como">
-    <div class="section-head"><h2><span class="num">1</span>Como funciona a SCP</h2><div class="desc">Do resultado de cada obra até a parte da Enpavi</div></div>
+    <div class="section-head"><h2><span class="num">1</span>Considerações Gerais</h2><div class="desc">Do resultado de cada obra até a parte da Enpavi</div></div>
     <p class="lead" id="como-lead"></p>
     <div class="steps" id="steps"></div>
     <div class="items-grid" id="items-grid"></div>
@@ -475,17 +475,12 @@
         <tfoot><tr><td colspan="5" id="part-foot-l">Total</td><td class="num tabular" id="part-foot-h"></td><td class="num tabular" id="part-foot-i"></td><td class="num tabular" id="part-foot-j"></td></tr></tfoot>
       </table>
     </div>
-    <div class="card" style="margin-top:18px">
-      <div class="section-head" style="margin-bottom:8px"><h3 style="font-size:15px">Parte Enpavi por linha</h3><div class="desc">Verde = a favor da Enpavi · vermelho = contra a Enpavi</div></div>
-      <div class="divbars" id="divbars"></div>
-    </div>
   </section>
 
   <section id="sec-adm">
     <div class="section-head"><h2><span class="num">4</span>Administração central</h2><div class="desc">Taxa sobre a receita das obras de cada contratante</div></div>
     <p class="lead">A administração central é cobrada como um percentual da <b>receita</b> (entradas dos caixas, só lançamentos considerados) das obras de cada contratante. Entra com valor negativo, porque reduz o resultado. A parte da Tríade é 100% do valor e a parte da Enpavi segue o % da coluna F.<span id="adm-quando"></span></p>
     <div class="cards-3" id="adm-cards"></div>
-    <div class="callout" id="adm-sabesp"></div>
   </section>
 
   <section id="sec-outros">
@@ -683,6 +678,16 @@ function simular(D, p){
     AJ: AJ, AM: AM, AN: AN, detalhe: detalhe
   };
 }
+// O Windows PowerShell 5.1 às vezes grava listas como {"value":[...],"Count":n}; aqui elas voltam a ser listas.
+function desembrulhar(x){
+  if (Array.isArray(x)) return x.map(desembrulhar);
+  if (x && typeof x === 'object') {
+    var ks = Object.keys(x);
+    if (ks.length === 2 && Object.prototype.hasOwnProperty.call(x, 'value') && Object.prototype.hasOwnProperty.call(x, 'Count') && Array.isArray(x.value)) return desembrulhar(x.value);
+    var o = {}; ks.forEach(function(k){ o[k] = desembrulhar(x[k]); }); return o;
+  }
+  return x;
+}
 function parametrosDaPlanilha(D){
   return { E: {}, F: {}, juros: D.params.juros, corteIdx: D.corteIdx,
            liga: { matriz: true, usina: true, c029: true, antigas: true, adm: true, retirada: true, provisoes: true } };
@@ -691,7 +696,7 @@ function parametrosDaPlanilha(D){
 
 (function(){
   "use strict";
-  var D = JSON.parse(document.getElementById('site-data').textContent);
+  var D = desembrulhar(JSON.parse(document.getElementById('site-data').textContent));
   var KEYS = ['K4','K5','K6','K7','K8','K9','K10','K11'];
 
   // ---------------- formatação ----------------
@@ -871,25 +876,6 @@ function parametrosDaPlanilha(D){
   }
   renderChips(); renderPart();
 
-  (function(){
-    var box = document.getElementById('divbars');
-    var rows = D.linhas.filter(function(l){ return Math.abs(l.J) > 0.5; }).slice().sort(function(a, b){ return b.J - a.J; });
-    var max = rows.reduce(function(m, l){ return Math.max(m, Math.abs(l.J)); }, 1);
-    rows.forEach(function(l){
-      var r = el('div', 'divbar');
-      r.appendChild(el('div', 'db-l', l.tipo === 'adm' ? 'Adm. ' + String(l.descricao || '').replace(/^OBRAS\s+/i, '') : l.codigo));
-      var tr = el('div', 'db-track'), f = el('div', 'db-fill');
-      var w = Math.abs(l.J) / max * 50;
-      f.style.width = w + '%';
-      if (l.J >= 0) { f.style.left = '50%'; f.style.background = 'var(--good)'; } else { f.style.left = (50 - w) + '%'; f.style.background = 'var(--critical)'; }
-      tr.appendChild(f); r.appendChild(tr);
-      r.appendChild(el('div', 'db-v tabular ' + sgn(l.J), fmtMi(l.J)));
-      r.addEventListener('mousemove', function(e){ showTip(e.clientX, e.clientY, '<div class="t-val">' + fmtBRL(l.J) + '</div><div class="t-key">' + esc(nomeLinha(l)) + '</div>'); });
-      r.addEventListener('mouseleave', hideTip);
-      box.appendChild(r);
-    });
-  })();
-
   // ---------------- 4. administração central ----------------
   var nomeObra = {};
   D.linhas.forEach(function(l){ var m = /^OBRA\s+(\S+)/i.exec(l.codigo); if (m) nomeObra[m[1]] = l; });
@@ -914,24 +900,6 @@ function parametrosDaPlanilha(D){
     if (Math.abs(l.E) < 1e-9) c.appendChild(el('p', 'small', 'Taxa ainda não informada na planilha.'));
     admCards.appendChild(c);
   });
-  (function(){
-    var box = document.getElementById('adm-sabesp');
-    var prop = admLinhas.filter(function(l){ return l.adm.partes.some(function(p){ return p.linhaE; }); })[0];
-    if (!prop) { box.style.display = 'none'; return; }
-    var html = '<b>Por que a linha ' + esc(String(prop.descricao || '').replace(/^OBRAS\s+/i, '')) + ' é proporcional?</b> Parte dessas obras é de consórcio, em que a Tríade não tem 100%. ' +
-      'Por isso a receita de cada obra entra multiplicada pelo % da Tríade nela:<div class="table-wrap" style="margin-top:10px"><table style="min-width:0"><thead><tr>' +
-      '<th class="static">Obra</th><th class="static num">Receita 100%</th><th class="static num">% Tríade</th><th class="static num">Receita considerada</th></tr></thead><tbody>';
-    var tot = 0;
-    prop.adm.partes.forEach(function(pt){
-      var r = (D.receitaObras[pt.obra] || [])[c0] || 0;
-      var lin = D.linhas.filter(function(x){ return x.linha === pt.linhaE; })[0] || { E: 1, descricao: '' };
-      tot += r * lin.E;
-      html += '<tr><td>Obra ' + esc(pt.obra) + ' – ' + esc(lin.descricao) + '</td><td class="num tabular">' + fmtBRL(r) + '</td><td class="num tabular">' + fmtPct(lin.E) + '</td><td class="num tabular">' + fmtBRL(r * lin.E) + '</td></tr>';
-    });
-    html += '</tbody><tfoot><tr><td colspan="3">Total × taxa de ' + fmtPct(prop.E) + '</td><td class="num tabular">' + fmtBRL(-tot * prop.E) + '</td></tr></tfoot></table></div>';
-    box.innerHTML = html;
-  })();
-
   (function(){
     var q = document.getElementById('adm-quando');
     if (q) q.innerHTML = ADM_MENSAL

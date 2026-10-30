@@ -4,10 +4,11 @@ const fs = require('fs');
 const path = process.argv[2] || require('path').join(__dirname, '..', 'index.html');
 const html = fs.readFileSync(path, 'utf8');
 const json = html.match(/<script id="site-data" type="application\/json">([\s\S]*?)<\/script>/)[1];
-const D = JSON.parse(json);
+let D = JSON.parse(json);
 const sim = html.match(/\/\*SIM-START\*\/([\s\S]*?)\/\*SIM-END\*\//)[1];
 const ctx = {};
-new Function('ctx', sim + '\nctx.simular = simular; ctx.parametrosDaPlanilha = parametrosDaPlanilha;')(ctx);
+new Function('ctx', sim + '\nctx.simular = simular; ctx.parametrosDaPlanilha = parametrosDaPlanilha; ctx.desembrulhar = desembrulhar;')(ctx);
+D = ctx.desembrulhar(D);
 const s = ctx.simular(D, ctx.parametrosDaPlanilha(D));
 let max = 0;
 for (const k of ['K4','K5','K6','K7','K8','K9','K10','K11']) {

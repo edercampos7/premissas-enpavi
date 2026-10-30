@@ -15,6 +15,8 @@ param(
     [string]$ProjectDir = (Split-Path -Parent $PSScriptRoot)
 )
 $ErrorActionPreference = 'Stop'
+# Windows PowerShell 5.1: sem isto o ConvertTo-Json grava as listas como {"value":[...],"Count":n}
+try { Remove-TypeData -TypeName System.Array -ErrorAction Stop } catch { }
 $utf8 = New-Object System.Text.UTF8Encoding($false)
 $inv = [System.Globalization.CultureInfo]::InvariantCulture
 
