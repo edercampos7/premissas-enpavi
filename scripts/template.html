@@ -483,7 +483,7 @@
 
   <section id="sec-adm">
     <div class="section-head"><h2><span class="num">4</span>Administração central</h2><div class="desc">Taxa sobre a receita das obras de cada contratante</div></div>
-    <p class="lead">A administração central é cobrada como um percentual da <b>receita</b> (entradas dos caixas, só lançamentos considerados) das obras de cada contratante. Entra com valor negativo, porque reduz o resultado. A parte da Tríade é 100% do valor e a parte da Enpavi segue o % da coluna F.</p>
+    <p class="lead">A administração central é cobrada como um percentual da <b>receita</b> (entradas dos caixas, só lançamentos considerados) das obras de cada contratante. Entra com valor negativo, porque reduz o resultado. A parte da Tríade é 100% do valor e a parte da Enpavi segue o % da coluna F.<span id="adm-quando"></span></p>
     <div class="cards-3" id="adm-cards"></div>
     <div class="callout" id="adm-sabesp"></div>
   </section>
@@ -642,7 +642,21 @@ function simular(D, p){
         base += r * f;
       });
       H = -base * E;
-      if (on) { g = gateIdx(l.data); for (m = g; m <= c; m++) AD[m] += H * G; }
+      if (on) {
+        if (D.admModo === 'mensal' && !l.data) {
+          // mês a mês: receita acumulada até cada mês × taxa (coluna AA da ENCONTRO)
+          for (m = 0; m <= c; m++) {
+            if (D.meses[m].slice(0, 7) < startKey) continue;
+            var bm = 0;
+            l.adm.partes.forEach(function(pt){
+              var rm = (D.receitaObras[pt.obra] || [])[m] || 0, fm = 1;
+              if (pt.linhaE) fm = val(p.E, pt.linhaE, (porLinha[pt.linhaE] || { E: 1 }).E);
+              bm += rm * fm;
+            });
+            AD[m] += -bm * E * G;
+          }
+        } else { g = gateIdx(l.data); for (m = g; m <= c; m++) AD[m] += H * G; }
+      }
       detalhe[l.linha] = { base: base };
     } else if (l.tipo === 'retirada') {
       H = l.H;
@@ -742,6 +756,7 @@ function parametrosDaPlanilha(D){
   document.getElementById('footer-gen').textContent = 'Apresentação gerada em ' + D.meta.generatedAt;
 
   var R = D.resumo;
+  var ADM_MENSAL = D.admModo === 'mensal';
   var kpiDefs = [
     { k: 'K4', t: 'Participação Enpavi (obras, usina, matriz e adm. central)' },
     { k: 'K5', t: 'Despesas Enpavi 029' },
@@ -797,7 +812,7 @@ function parametrosDaPlanilha(D){
   var items = document.getElementById('items-grid');
   [
     { t: 'Além das obras', p: 'Entram também a matriz (impostos), a Usina Caçapava, as despesas Enpavi 029 (100% Enpavi) e as obras antigas (diferença Enpavi × DP Barros).' },
-    { t: 'Ajustes', p: 'Administração central sobre a receita das obras, retiradas já recebidas e provisões (retenções e IR a pagar) na data de corte.' },
+    { t: 'Ajustes', p: ADM_MENSAL ? 'Administração central mês a mês, sobre a receita acumulada das obras. Retiradas já recebidas e provisões (retenções e IR a pagar) entram na data de corte.' : 'Administração central sobre a receita das obras, retiradas já recebidas e provisões (retenções e IR a pagar) na data de corte.' },
     { t: 'Juros', p: 'Sobre o saldo de cada mês corre juros simples de ' + fmtPct(D.params.juros, 1) + ' ao mês, da data de início até a data de corte.' }
   ].forEach(function(s){ var c = el('div', 'item'); c.appendChild(el('div', 'it-t', s.t)); c.appendChild(el('p', null, s.p)); items.appendChild(c); });
 
@@ -805,7 +820,7 @@ function parametrosDaPlanilha(D){
   var params = document.getElementById('params');
   [
     { l: 'Data de início', v: fmtDate(D.params.inicio), p: 'Só entram lançamentos pagos a partir do mês desta data, e os juros começam a correr nele.' },
-    { l: 'Data de corte', v: fmtDate(D.params.corte), p: 'Último mês do encontro de contas. Provisões, retiradas e a adm. central entram neste mês.' },
+    { l: 'Data de corte', v: fmtDate(D.params.corte), p: ADM_MENSAL ? 'Último mês do encontro de contas. Provisões e retiradas entram neste mês.' : 'Último mês do encontro de contas. Provisões, retiradas e a adm. central entram neste mês.' },
     { l: 'Juros ao mês', v: fmtPct(D.params.juros, 1), p: 'Taxa fixa, juros simples: juros do mês = saldo sem juros do mês × taxa.' },
     { l: '% Enpavi padrão', v: fmtPct(pad), p: 'Percentual da Enpavi sobre a parte da Tríade, usado nas linhas que não têm percentual próprio.' }
   ].forEach(function(x){
@@ -893,7 +908,7 @@ function parametrosDaPlanilha(D){
     c.appendChild(el('div', 'm-s', 'Obras ' + l.adm.partes.map(function(p){ return p.obra; }).join(', ') + (l.adm.partes.some(function(p){ return p.linhaE; }) ? ' · receita proporcional ao % Tríade' : '')));
     c.appendChild(el('div', 'm-v tabular ' + sgn(l.H), fmtBRL(l.H)));
     [['Receita considerada', fmtBRL(base)], ['Taxa', fmtPct(l.E)], ['Parte Enpavi (' + fmtPct(l.G) + ')', fmtBRL(l.J)],
-     ['Entra em', l.data ? fmtMes(l.data) : 'mês de corte']].forEach(function(r){
+     ['Entra em', l.data ? fmtMes(l.data) : (ADM_MENSAL ? 'mês a mês' : 'mês de corte')]].forEach(function(r){
       var row = el('div', 'm-row'); row.appendChild(el('span', null, r[0])); row.appendChild(el('span', 'tabular', r[1])); c.appendChild(row);
     });
     if (Math.abs(l.E) < 1e-9) c.appendChild(el('p', 'small', 'Taxa ainda não informada na planilha.'));
@@ -917,6 +932,12 @@ function parametrosDaPlanilha(D){
     box.innerHTML = html;
   })();
 
+  (function(){
+    var q = document.getElementById('adm-quando');
+    if (q) q.innerHTML = ADM_MENSAL
+      ? ' Na conta mês a mês ela entra <b>todo mês</b>, sobre a receita acumulada até aquele mês, e por isso também corre juros desde o começo.'
+      : ' Na conta mês a mês ela entra de uma vez, <b>no mês de corte</b>.';
+  })();
   // ---------------- 5. usina, 029, matriz e antigas ----------------
   var outros = document.getElementById('outros-cards');
   function miniCard(titulo, sub, valor100, enpavi, texto){
@@ -1083,7 +1104,7 @@ function parametrosDaPlanilha(D){
   var first = 0;
   for (var i0 = 0; i0 <= cut; i0++) { if (Math.abs(EN.AJ[i0]) > 0.5 || Math.abs(EN.AM[i0]) > 0.5) { first = Math.max(0, i0 - 1); break; } }
   document.getElementById('mensal-lead').innerHTML = 'Para cada mês, a planilha soma o resultado acumulado de cada fluxo até aquele mês (já multiplicado pelo % da Enpavi) e calcula os juros do mês sobre esse saldo. ' +
-    'O primeiro mês com movimento é <b>' + fmtMes(D.meses[first + (first > 0 ? 1 : 0)]) + '</b>; o último é o mês de corte, <b>' + fmtMes(D.meses[cut]) + '</b>, quando entram também a adm. central, as retiradas e as provisões. Escolha o mês abaixo (ou clique no gráfico ou numa linha da tabela) para ver os valores daquele mês.';
+    'O primeiro mês com movimento é <b>' + fmtMes(D.meses[first + (first > 0 ? 1 : 0)]) + '</b>; o último é o mês de corte, <b>' + fmtMes(D.meses[cut]) + '</b>, quando entram também ' + (ADM_MENSAL ? 'as retiradas e as provisões. A adm. central entra mês a mês, sobre a receita acumulada até cada mês.' : 'a adm. central, as retiradas e as provisões.') + ' Escolha o mês abaixo (ou clique no gráfico ou numa linha da tabela) para ver os valores daquele mês.';
   var lineSeries = [
     { name: 'Saldo sem juros', color: cssVar('--cat-1') || '#2a78d6', values: EN.AJ },
     { name: 'Juros acumulados', color: cssVar('--accent') || '#b5661a', values: EN.AM, dash: '6 4' },
