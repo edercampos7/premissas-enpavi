@@ -1,0 +1,1183 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Encontro de Contas Enpavi — SCP Tríade × Enpavi</title>
+<link rel="icon" type="image/jpeg" href="data:image/jpeg;base64,__LOGO_BASE64__">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: light;
+    --bg: #f6f3ec;
+    --surface: #fffdf8;
+    --surface-2: #efe9dc;
+    --line: rgba(23,19,13,0.12);
+    --line-strong: rgba(23,19,13,0.22);
+    --ink: #18140e;
+    --ink-2: #5c5648;
+    --muted: #8d8574;
+    --accent: #b5661a;
+    --accent-ink: #fff8ef;
+    --good: #0ca30c;
+    --good-bg: #e8f5e3;
+    --critical: #b3261e;
+    --critical-bg: #fbe9e6;
+    --chip-bg: #efe9dc;
+    --cat-1: #2a78d6; /* Mão de Obra */
+    --cat-2: #eb6834; /* Materiais */
+    --cat-3: #1baf7a; /* Serviços de Terceiros */
+    --cat-4: #eda100; /* Equipamentos */
+    --cat-5: #e87ba4; /* Despesas Administrativas */
+    --treasury: #4a3aa7;
+    --shadow: 0 1px 2px rgba(23,19,13,0.06), 0 8px 24px -16px rgba(23,19,13,0.25);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --bg: #121009;
+      --surface: #1c1811;
+      --surface-2: #241f16;
+      --line: rgba(255,251,240,0.12);
+      --line-strong: rgba(255,251,240,0.22);
+      --ink: #f6f2e8;
+      --ink-2: #c7bfab;
+      --muted: #948c78;
+      --accent: #e0973f;
+      --accent-ink: #1c1811;
+      --good: #35c440;
+      --good-bg: #17301a;
+      --critical: #ff8a75;
+      --critical-bg: #3a1c17;
+      --chip-bg: #241f16;
+      --cat-1: #3987e5;
+      --cat-2: #d95926;
+      --cat-3: #199e70;
+      --cat-4: #c98500;
+      --cat-5: #d55181;
+      --treasury: #9085e9;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 28px -16px rgba(0,0,0,0.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --bg: #121009;
+    --surface: #1c1811;
+    --surface-2: #241f16;
+    --line: rgba(255,251,240,0.12);
+    --line-strong: rgba(255,251,240,0.22);
+    --ink: #f6f2e8;
+    --ink-2: #c7bfab;
+    --muted: #948c78;
+    --accent: #e0973f;
+    --accent-ink: #1c1811;
+    --good: #35c440;
+    --good-bg: #17301a;
+    --critical: #ff8a75;
+    --critical-bg: #3a1c17;
+    --chip-bg: #241f16;
+    --cat-1: #3987e5;
+    --cat-2: #d95926;
+    --cat-3: #199e70;
+    --cat-4: #c98500;
+    --cat-5: #d55181;
+    --treasury: #9085e9;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 28px -16px rgba(0,0,0,0.6);
+  }
+
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap{ max-width: 1180px; margin: 0 auto; padding: 28px 24px 80px; }
+  h1,h2,h3{ font-family:"Oswald", system-ui, sans-serif; font-weight:600; letter-spacing: 0.01em; text-wrap: balance; margin:0; }
+  .tabular{ font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+  .mono{ font-family:"IBM Plex Mono", ui-monospace, monospace; }
+
+  /* ---------- masthead ---------- */
+  .masthead{ display:flex; align-items:center; gap:20px; padding-bottom:20px; border-bottom: 2px solid var(--ink); margin-bottom: 28px; }
+  .masthead .logo{ flex:none; width:64px; height:64px; object-fit:contain; background:#fff; border-radius:12px; padding:7px; border:1px solid var(--line); box-shadow: var(--shadow); }
+  .masthead-text{ display:flex; flex-direction:column; gap:6px; min-width:0; }
+  @media (max-width:560px){ .masthead{ flex-wrap:wrap; } }
+  .eyebrow{ font-family:"Oswald", sans-serif; font-size: 12.5px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color: var(--accent); }
+  .masthead h1{ font-size: 34px; }
+  .masthead .sub{ color: var(--ink-2); font-size:14.5px; display:flex; gap:16px; flex-wrap:wrap; margin-top:2px; }
+  .masthead .sub b{ color:var(--ink); font-weight:600; }
+
+  /* ---------- KPI row ---------- */
+  .kpis{ display:grid; grid-template-columns: repeat(auto-fit, minmax(190px,1fr)); gap:1px; background: var(--line); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:32px; box-shadow: var(--shadow); }
+  .kpi{ background: var(--surface); padding:16px 18px; display:flex; flex-direction:column; gap:6px; min-height: 96px; }
+  .kpi .label{ font-size:11.5px; line-height:1.35; text-transform:uppercase; letter-spacing:0.08em; color: var(--muted); font-weight:600; display:flex; align-items:flex-start; gap:6px; min-height: 2.7em; }
+  .kpi .label .icon{ width:15px; height:15px; flex:none; color: var(--accent); margin-top:1px; }
+  .kpi .label .icon.good{ color: var(--good); }
+  .kpi .label .icon.critical{ color: var(--critical); }
+  .kpi .label .icon svg{ display:block; width:100%; height:100%; }
+  .kpi .value{ font-size: 20px; line-height:1.2; font-weight:600; font-family:"IBM Plex Sans", sans-serif; white-space:nowrap; }
+  .kpi .value.critical{ color: var(--critical); }
+  .kpi .value.good{ color: var(--good); }
+  .kpi .note{ font-size:12px; color: var(--muted); }
+
+  section{ margin-bottom: 40px; }
+  .section-head{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
+  .section-head h2{ font-size:19px; }
+  .section-head .desc{ color: var(--muted); font-size:13px; }
+  .section-title-row{ display:flex; align-items:center; gap:10px; }
+  .section-toggle{ display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; padding:0; border:1px solid var(--line-strong); background:var(--surface); border-radius:6px; color:var(--ink-2); cursor:pointer; flex:none; }
+  .section-toggle:hover{ background:var(--surface-2); color:var(--ink); }
+  .section-toggle:focus-visible{ outline:2px solid var(--accent); outline-offset:1px; }
+  .section-toggle svg{ width:14px; height:14px; transition: transform .15s ease; }
+  .section-toggle[aria-expanded="false"] svg{ transform: rotate(-90deg); }
+
+  .card{ background: var(--surface); border:1px solid var(--line); border-radius:12px; padding:20px 22px; box-shadow: var(--shadow); }
+
+  .grid-2{ display:grid; grid-template-columns: 1.1fr 1fr; gap:20px; align-items:stretch; }
+  @media (max-width: 880px){ .grid-2{ grid-template-columns: 1fr; } }
+
+  /* ---------- legend ---------- */
+  .legend{ display:flex; flex-wrap:wrap; gap:14px; margin-bottom:16px; }
+  .legend-item{ display:flex; align-items:center; gap:6px; font-size:12.5px; color: var(--ink-2); }
+  .swatch{ width:10px; height:10px; border-radius:2px; flex:none; }
+
+  /* ---------- ranked bar chart ---------- */
+  .rankbar-row{ display:grid; grid-template-columns: 168px 1fr 96px; align-items:center; gap:10px; padding: 7px 0; }
+  .rankbar-row .rb-label{ font-size:13px; color: var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .rankbar-track{ position:relative; height:22px; background: var(--surface-2); border-radius:4px; }
+  .rankbar-fill{ position:absolute; left:0; top:0; height:100%; border-radius:4px; min-width:3px; transition: width .3s ease; }
+  .rankbar-row .rb-value{ font-size:13px; text-align:right; }
+  .rankbar-row .rb-pct{ color: var(--muted); font-size:11.5px; }
+
+  /* ---------- stacked monthly chart ---------- */
+  .stackchart{ display:flex; align-items:flex-end; gap:28px; height: 240px; padding: 8px 8px 0; }
+  .stack-col{ display:flex; flex-direction:column; align-items:center; gap:8px; flex:1; height:100%; justify-content:flex-end; }
+  .stack-total{ font-size:13px; font-weight:600; }
+  .stack-bar{ width: 64px; display:flex; flex-direction:column-reverse; border-radius:4px 4px 0 0; overflow:hidden; }
+  .stack-seg{ width:100%; cursor:pointer; }
+  .stack-label{ font-family:"Oswald",sans-serif; font-size:12.5px; letter-spacing:0.04em; text-transform:uppercase; color: var(--ink-2); }
+
+  /* tooltip */
+  .viztip{ position:fixed; pointer-events:none; z-index:50; background: var(--ink); color: var(--bg); font-size:12.5px; padding:7px 10px; border-radius:6px; box-shadow: var(--shadow); opacity:0; transform: translate(-50%,-100%); transition: opacity .1s ease; max-width:240px; }
+  .viztip.show{ opacity:1; }
+  .viztip .t-val{ font-weight:700; font-size:13.5px; }
+  .viztip .t-key{ opacity:.75; }
+
+  /* ---------- accordion detail table ---------- */
+  .acc{ border:1px solid var(--line); border-radius:12px; overflow:hidden; background:var(--surface); box-shadow: var(--shadow); }
+  .acc-group{ border-top:1px solid var(--line); }
+  .acc-group:first-child{ border-top:none; }
+  .acc-head{ width:100%; display:flex; align-items:center; gap:12px; padding:14px 18px; background:none; border:none; cursor:pointer; text-align:left; font: inherit; color: inherit; }
+  .acc-head:hover{ background: var(--surface-2); }
+  .acc-head .swatch{ width:12px; height:12px; border-radius:3px; }
+  .acc-head .ag-name{ font-family:"Oswald",sans-serif; font-weight:600; font-size:15px; flex:1; }
+  .acc-head .ag-total{ font-size:15px; font-weight:600; }
+  .acc-head .ag-pct{ color: var(--muted); font-size:12.5px; width:52px; text-align:right; }
+  .acc-head .chev{ transition: transform .15s ease; color: var(--muted); }
+  .acc-group.open .chev{ transform: rotate(90deg); }
+  .acc-body{ display:none; padding: 4px 18px 14px 42px; }
+  .acc-group.open .acc-body{ display:block; }
+  .sub-row{ display:grid; grid-template-columns: 1fr 90px 116px; gap:10px; align-items:center; padding:6px 0; border-top: 1px solid var(--line); }
+  .sub-row:first-child{ border-top:none; }
+  .sub-row .sr-name{ font-size:13px; color: var(--ink-2); }
+  .sub-row .sr-bar-wrap{ position:relative; height:8px; background:var(--surface-2); border-radius:3px; }
+  .sub-row .sr-bar{ position:absolute; left:0; top:0; height:100%; border-radius:3px; }
+  .sub-row .sr-value{ font-size:12.5px; text-align:right; white-space:nowrap; }
+
+  /* ---------- result card ---------- */
+  .result-card{ display:grid; grid-template-columns: repeat(3, 1fr); gap:0; border:1px solid var(--line); border-radius:12px; overflow:hidden; box-shadow: var(--shadow); }
+  .result-cell{ background:var(--surface); padding:22px 24px; border-left:1px solid var(--line); }
+  .result-cell:first-child{ border-left:none; }
+  @media (max-width:720px){ .result-card{ grid-template-columns:1fr; } .result-cell{ border-left:none; border-top:1px solid var(--line);} .result-cell:first-child{border-top:none;} }
+  .result-cell .rc-label{ font-size:12px; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); font-weight:600; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+  .result-cell .rc-label .icon{ width:14px; height:14px; flex:none; }
+  .result-cell .rc-label .icon svg{ display:block; width:100%; height:100%; }
+  .result-cell .rc-value{ font-size:28px; font-weight:600; }
+  .result-cell .rc-value.critical{ color:var(--critical); }
+  .result-cell .rc-value.good{ color:var(--good); }
+  .result-note{ padding:14px 24px; background: var(--critical-bg); color: var(--critical); font-size:13px; border-top:1px solid var(--line); grid-column: 1 / -1; }
+  .result-note.good{ background: var(--good-bg); color: var(--good); }
+
+  /* ---------- suppliers ---------- */
+  .supplier-row{ display:grid; grid-template-columns: 1fr 1fr 70px; gap:10px; align-items:center; padding:7px 0; border-top:1px solid var(--line); }
+  .supplier-row:first-child{ border-top:none; }
+  .supplier-row .sp-name{ font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .supplier-row .sp-track{ position:relative; height:14px; background:var(--surface-2); border-radius:3px; }
+  .supplier-row .sp-fill{ position:absolute; left:0; top:0; height:100%; background: var(--cat-1); border-radius:3px; }
+  .supplier-row .sp-qtd{ font-size:11.5px; color:var(--muted); text-align:right; }
+
+  /* ---------- filters ---------- */
+  .filters{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:14px; }
+  .filters select, .filters input[type="search"]{
+    font: inherit; font-size:13.5px; background: var(--surface); color: var(--ink);
+    border:1px solid var(--line-strong); border-radius:7px; padding:8px 10px;
+  }
+  .filters input[type="search"]{ min-width:220px; flex:1; }
+  .filters select:focus, .filters input:focus{ outline:2px solid var(--accent); outline-offset:1px; }
+  .chip-toggle{ display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--ink-2); background:var(--chip-bg); border:1px solid var(--line); border-radius:20px; padding:6px 12px; cursor:pointer; user-select:none; }
+  .chip-toggle input{ accent-color: var(--accent); }
+
+  /* ---------- table ---------- */
+  .table-wrap{ overflow-x:auto; border:1px solid var(--line); border-radius:12px; box-shadow: var(--shadow); }
+  table{ width:100%; border-collapse:collapse; background:var(--surface); min-width: 760px; }
+  thead th{ position:sticky; top:0; background: var(--surface-2); text-align:left; font-size:11.5px; text-transform:uppercase; letter-spacing:0.06em; color: var(--muted); padding:10px 14px; border-bottom:1px solid var(--line); cursor:pointer; white-space:nowrap; }
+  thead th:hover{ color:var(--ink); }
+  thead th.sorted::after{ content:" \25BE"; }
+  thead th.sorted.asc::after{ content:" \25B4"; }
+  tbody td{ padding:9px 14px; border-bottom:1px solid var(--line); font-size:13px; vertical-align:top; }
+  tbody tr:last-child td{ border-bottom:none; }
+  tbody tr:hover{ background: var(--surface-2); }
+  td.num{ text-align:right; white-space:nowrap; }
+  td.date{ white-space:nowrap; color: var(--ink-2); }
+  .cat-badge{ display:inline-flex; align-items:center; gap:6px; font-size:12px; white-space:nowrap; }
+  .cat-badge .swatch{ width:8px; height:8px; border-radius:2px; }
+  tfoot td{ padding:11px 14px; font-weight:600; background: var(--surface-2); border-top: 2px solid var(--ink); }
+  .empty-row td{ text-align:center; color:var(--muted); padding:26px; }
+
+  footer{ margin-top:48px; padding-top:18px; border-top:1px solid var(--line); color:var(--muted); font-size:12px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+
+  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
+
+  /* ================= apresentação SCP Tríade × Enpavi ================= */
+  html{ scroll-behavior:smooth; }
+  .toc{ position:sticky; top:0; z-index:30; background: var(--bg); display:flex; gap:8px; overflow-x:auto; padding:10px 0 12px; margin:-8px 0 26px; border-bottom:1px solid var(--line); scrollbar-width:thin; }
+  .toc a{ flex:none; font-family:"Oswald",sans-serif; font-size:12.5px; letter-spacing:0.05em; text-transform:uppercase; color: var(--ink-2); text-decoration:none; background: var(--chip-bg); border:1px solid var(--line); border-radius:20px; padding:5px 12px; }
+  .toc a:hover, .toc a.active{ color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
+  .section-head .num{ font-family:"Oswald",sans-serif; color: var(--accent); margin-right:8px; }
+  section{ scroll-margin-top: 64px; }
+  .lead{ color: var(--ink-2); font-size:15px; max-width: 78ch; margin: -4px 0 16px; }
+  .lead b{ color: var(--ink); }
+
+  .verdict{ display:flex; align-items:center; gap:14px; padding:16px 20px; border-radius:12px; margin:-12px 0 34px; border:1px solid var(--line); box-shadow: var(--shadow); background: var(--critical-bg); color: var(--critical); font-size:15px; }
+  .verdict.good{ background: var(--good-bg); color: var(--good); }
+  .verdict b{ font-size:18px; }
+  .verdict .icon{ width:22px; height:22px; flex:none; }
+  .verdict .icon svg{ width:100%; height:100%; display:block; }
+
+  .steps{ display:grid; grid-template-columns: repeat(3, 1fr); gap:14px; align-items:stretch; }
+  @media (max-width: 820px){ .steps{ grid-template-columns: 1fr; } }
+  .step{ position:relative; background: var(--surface); border:1px solid var(--line); border-radius:12px; padding:18px 18px 16px; box-shadow: var(--shadow); }
+  .step .n{ display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:50%; background: var(--accent); color: var(--accent-ink); font-family:"Oswald",sans-serif; font-weight:600; font-size:14px; margin-bottom:10px; }
+  .step h3{ font-size:16px; margin-bottom:6px; }
+  .step p{ margin:0 0 10px; font-size:13.5px; color: var(--ink-2); }
+  .step .ex{ font-size:13px; background: var(--surface-2); border-radius:8px; padding:9px 11px; }
+  .step .ex b{ font-size:15px; }
+  .formula{ font-family:"IBM Plex Mono",monospace; font-size:12.5px; background: var(--surface-2); border-radius:6px; padding:2px 7px; white-space:nowrap; }
+  .items-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(230px,1fr)); gap:12px; margin-top:14px; }
+  .item{ background: var(--surface); border:1px solid var(--line); border-radius:10px; padding:13px 15px; }
+  .item .it-t{ font-family:"Oswald",sans-serif; font-size:13px; letter-spacing:0.05em; text-transform:uppercase; color: var(--ink-2); margin-bottom:4px; }
+  .item p{ margin:0; font-size:13px; color: var(--ink-2); }
+
+  .params{ display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:12px; }
+  .param{ background: var(--surface); border:1px solid var(--line); border-radius:12px; padding:16px 18px; box-shadow: var(--shadow); }
+  .param .p-l{ font-size:11.5px; text-transform:uppercase; letter-spacing:0.08em; color: var(--muted); font-weight:600; }
+  .param .p-v{ font-size:24px; font-weight:600; margin:4px 0 6px; }
+  .param p{ margin:0; font-size:13px; color: var(--ink-2); }
+
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+  .chip{ font: inherit; font-size:12.5px; color: var(--ink-2); background: var(--chip-bg); border:1px solid var(--line); border-radius:20px; padding:5px 12px; cursor:pointer; }
+  .chip[aria-pressed="true"]{ background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .chip .cnt{ opacity:.65; margin-left:4px; }
+
+  .grp{ display:inline-flex; align-items:center; gap:6px; font-size:12px; white-space:nowrap; }
+  .grp .swatch{ width:9px; height:9px; border-radius:2px; }
+  td.pos{ color: var(--good); } td.neg{ color: var(--critical); }
+  .neg{ color: var(--critical); } .pos{ color: var(--good); }
+  tr.off td{ opacity:.45; }
+  .small{ font-size:12px; color: var(--muted); }
+
+  /* barras divergentes (parte Enpavi por linha) */
+  .divbars{ display:flex; flex-direction:column; gap:2px; }
+  .divbar{ display:grid; grid-template-columns: 150px 1fr 120px; gap:10px; align-items:center; padding:4px 0; font-size:13px; }
+  .divbar .db-l{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .divbar .db-track{ position:relative; height:16px; }
+  .divbar .db-track::before{ content:""; position:absolute; left:50%; top:-3px; bottom:-3px; width:1px; background: var(--line-strong); }
+  .divbar .db-fill{ position:absolute; top:0; height:100%; border-radius:3px; min-width:2px; }
+  .divbar .db-v{ text-align:right; white-space:nowrap; }
+  @media (max-width:560px){ .divbar{ grid-template-columns: 96px 1fr 92px; font-size:12px; } }
+
+  .cards-3{ display:grid; grid-template-columns: repeat(auto-fit, minmax(250px,1fr)); gap:14px; }
+  .mini{ background: var(--surface); border:1px solid var(--line); border-radius:12px; padding:16px 18px; box-shadow: var(--shadow); display:flex; flex-direction:column; gap:6px; }
+  .mini .m-t{ font-family:"Oswald",sans-serif; font-size:15px; }
+  .mini .m-s{ font-size:12.5px; color: var(--muted); }
+  .mini .m-v{ font-size:21px; font-weight:600; }
+  .mini .m-row{ display:flex; justify-content:space-between; gap:10px; font-size:13px; border-top:1px solid var(--line); padding-top:6px; }
+  .mini .m-row span:first-child{ color: var(--ink-2); }
+  .mini p{ margin:0; font-size:13px; color: var(--ink-2); }
+
+  .callout{ border-left:3px solid var(--accent); background: var(--surface); border-radius:0 10px 10px 0; padding:12px 16px; margin-top:14px; font-size:13.5px; color: var(--ink-2); box-shadow: var(--shadow); }
+  .callout b{ color: var(--ink); }
+
+  /* gráficos SVG */
+  .chart{ width:100%; position:relative; }
+  .chart svg{ display:block; width:100%; height:auto; overflow:visible; }
+  .chart .axis text{ font-size:11px; fill: var(--muted); font-family:"IBM Plex Sans",sans-serif; }
+  .chart .grid line{ stroke: var(--line); }
+  .chart .zero{ stroke: var(--line-strong); }
+  .chart .lbl{ font-size:11.5px; fill: var(--ink-2); font-family:"IBM Plex Sans",sans-serif; }
+  .chart .lbl.strong{ fill: var(--ink); font-weight:600; }
+  .chart .hover-line{ stroke: var(--ink-2); stroke-dasharray:3 3; }
+  .viztip .t-row{ display:flex; justify-content:space-between; gap:14px; font-size:12px; }
+  .viztip .t-row i{ display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:5px; }
+  .viztip{ max-width: 300px; transform: translate(-50%, calc(-100% - 8px)); }
+
+  .table-wrap.tall{ max-height: 460px; overflow:auto; }
+  .table-wrap table.compact{ min-width: 980px; }
+  table.compact tbody td{ padding:7px 12px; font-size:12.5px; }
+  thead th.num{ text-align:right; }
+  thead th.static{ cursor:default; }
+  tbody tr.cut td{ background: var(--good-bg); font-weight:600; }
+  tbody tr.sub td{ background: var(--surface-2); font-weight:600; }
+
+  /* simulador */
+  .sim{ display:grid; grid-template-columns: 1.15fr 1fr; gap:20px; align-items:start; }
+  @media (max-width: 960px){ .sim{ grid-template-columns: 1fr; } }
+  .sim > *, .grid-2 > *, .steps > *, .cards-3 > *{ min-width:0; }
+  .sim-res td:first-child{ white-space:normal; }
+  .sim-controls{ display:grid; grid-template-columns: repeat(auto-fit, minmax(170px,1fr)); gap:12px; margin-bottom:14px; }
+  .field{ display:flex; flex-direction:column; gap:5px; font-size:12px; color: var(--muted); text-transform:uppercase; letter-spacing:0.06em; font-weight:600; }
+  .field input, .field select, td input{ font: inherit; font-size:14px; text-transform:none; letter-spacing:0; font-weight:500; color: var(--ink); background: var(--surface); border:1px solid var(--line-strong); border-radius:7px; padding:7px 9px; width:100%; }
+  td input{ width:84px; padding:5px 7px; font-size:13px; text-align:right; }
+  td input.changed, .field input.changed, .field select.changed{ border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+  .field input:focus, .field select:focus, td input:focus{ outline:2px solid var(--accent); outline-offset:1px; }
+  .toggles{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+  .btn{ font: inherit; font-size:13px; font-weight:600; border-radius:8px; padding:8px 14px; cursor:pointer; border:1px solid var(--ink); background: var(--ink); color: var(--bg); }
+  .btn.ghost{ background: transparent; color: var(--ink); border-color: var(--line-strong); }
+  .btn:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  .sim-res table{ min-width: 0; }
+  .sim-res td, .sim-res th{ white-space:nowrap; }
+  .sim-res tr.total td{ font-weight:700; border-top:2px solid var(--ink); }
+  .check{ display:flex; gap:8px; align-items:center; font-size:12.5px; padding:8px 12px; border-radius:8px; margin-top:12px; background: var(--good-bg); color: var(--good); }
+  .check.bad{ background: var(--critical-bg); color: var(--critical); }
+  .sim-lines{ margin-top:16px; }
+  .sim-lines table{ min-width: 640px; }
+
+  .open-list{ margin:0; padding-left:20px; }
+  .open-list li{ margin-bottom:8px; font-size:14px; color: var(--ink-2); }
+  .open-list li b{ color: var(--ink); }
+  dl.gloss{ display:grid; grid-template-columns: 200px 1fr; gap:10px 18px; margin:0; }
+  dl.gloss dt{ font-family:"Oswald",sans-serif; font-size:14.5px; }
+  dl.gloss dd{ margin:0; color: var(--ink-2); font-size:14px; }
+  @media (max-width:640px){ dl.gloss{ grid-template-columns: 1fr; } dl.gloss dd{ margin-bottom:8px; } }
+  @media print{ .toc{ position:static; } .sim{ display:none; } }
+
+  /* ajustes de layout */
+  .kpis{ grid-template-columns: repeat(4, 1fr); }
+  @media (max-width: 900px){ .kpis{ grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 460px){ .kpis{ grid-template-columns: 1fr; } }
+  .kpi.hl{ background: var(--surface-2); }
+  @media (min-width: 1100px){ .toc{ flex-wrap: wrap; overflow-x: visible; } }
+  #part-table{ min-width: 860px; }
+  #part-table thead th, #part-table tbody td, #part-table tfoot td{ padding-left:10px; padding-right:10px; }
+  #part-table tbody td{ font-size:12.5px; }
+  #part-table td.code{ white-space:nowrap; }
+  #part-table td.code .swatch{ display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:7px; vertical-align:middle; }
+  .mini .m-row span:last-child{ white-space:nowrap; text-align:right; }
+  .mini .m-row span:first-child{ min-width:0; }
+  .sim-lines table{ min-width: 500px; }
+  .sim-lines thead th, .sim-lines tbody td{ padding:7px 9px; font-size:12.5px; }
+  .sim-lines td input{ width:66px; }
+  #sec-retiradas .grid-2{ align-items:start; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <img class="logo" src="data:image/jpeg;base64,__LOGO_BASE64__" alt="Tríade Pavimentação e Construções">
+    <div class="masthead-text">
+      <div class="eyebrow">Tríade Pavimentação · SCP Tríade × Enpavi</div>
+      <h1>Encontro de Contas Enpavi</h1>
+      <div class="sub">
+        <span>Data de corte: <b id="meta-corte">—</b></span>
+        <span>Início: <b id="meta-inicio">—</b></span>
+        <span>Juros: <b id="meta-juros">—</b></span>
+        <span>Planilha salva em <b id="meta-salva">—</b></span>
+      </div>
+    </div>
+  </div>
+
+  <nav class="toc" id="toc" aria-label="Seções">
+    <a href="#sec-resumo">Resumo</a>
+    <a href="#sec-como">Como funciona</a>
+    <a href="#sec-parametros">Parâmetros</a>
+    <a href="#sec-participacoes">Participações</a>
+    <a href="#sec-adm">Adm. central</a>
+    <a href="#sec-outros">Usina, 029, matriz e antigas</a>
+    <a href="#sec-retiradas">Retiradas</a>
+    <a href="#sec-mensal">Mês a mês</a>
+    <a href="#sec-cascata">Do resultado ao saldo</a>
+    <a href="#sec-simulador">Simulador</a>
+    <a href="#sec-aberto">Pontos em aberto</a>
+    <a href="#sec-glossario">Glossário</a>
+  </nav>
+
+  <section id="sec-resumo">
+    <div class="kpis" id="kpi-row"></div>
+    <div class="verdict" id="verdict"></div>
+  </section>
+
+  <section id="sec-como">
+    <div class="section-head"><h2><span class="num">1</span>Como funciona a SCP</h2><div class="desc">Do resultado de cada obra até a parte da Enpavi</div></div>
+    <p class="lead" id="como-lead"></p>
+    <div class="steps" id="steps"></div>
+    <div class="items-grid" id="items-grid"></div>
+  </section>
+
+  <section id="sec-parametros">
+    <div class="section-head"><h2><span class="num">2</span>Parâmetros do cálculo</h2><div class="desc">Células amarelas da aba PREMISSAS ENPAVI</div></div>
+    <div class="params" id="params"></div>
+  </section>
+
+  <section id="sec-participacoes">
+    <div class="section-head"><h2><span class="num">3</span>Participações por obra e fluxo</h2><div class="desc">Item 1 da PREMISSAS ENPAVI, na data de corte</div></div>
+    <p class="lead">Cada linha mostra o <b>resultado 100%</b> do fluxo até a data de corte, o percentual da Tríade, o percentual da Enpavi sobre a parte da Tríade e quanto fica para a Enpavi. Clique nos grupos para filtrar.</p>
+    <div class="chips" id="grp-chips"></div>
+    <div class="table-wrap">
+      <table id="part-table">
+        <thead><tr>
+          <th class="static">Código</th><th class="static">Descrição</th>
+          <th class="static num">% Tríade</th><th class="static num">% Enpavi s/ Tríade</th><th class="static num">% efetivo</th>
+          <th class="static num">Resultado 100%</th><th class="static num">Parte Tríade</th><th class="static num">Parte Enpavi</th>
+        </tr></thead>
+        <tbody id="part-body"></tbody>
+        <tfoot><tr><td colspan="5" id="part-foot-l">Total</td><td class="num tabular" id="part-foot-h"></td><td class="num tabular" id="part-foot-i"></td><td class="num tabular" id="part-foot-j"></td></tr></tfoot>
+      </table>
+    </div>
+    <div class="card" style="margin-top:18px">
+      <div class="section-head" style="margin-bottom:8px"><h3 style="font-size:15px">Parte Enpavi por linha</h3><div class="desc">Verde = a favor da Enpavi · vermelho = contra a Enpavi</div></div>
+      <div class="divbars" id="divbars"></div>
+    </div>
+  </section>
+
+  <section id="sec-adm">
+    <div class="section-head"><h2><span class="num">4</span>Administração central</h2><div class="desc">Taxa sobre a receita das obras de cada contratante</div></div>
+    <p class="lead">A administração central é cobrada como um percentual da <b>receita</b> (entradas dos caixas, só lançamentos considerados) das obras de cada contratante. Entra com valor negativo, porque reduz o resultado. A parte da Tríade é 100% do valor e a parte da Enpavi segue o % da coluna F.</p>
+    <div class="cards-3" id="adm-cards"></div>
+    <div class="callout" id="adm-sabesp"></div>
+  </section>
+
+  <section id="sec-outros">
+    <div class="section-head"><h2><span class="num">5</span>Usina Caçapava, custo 029, matriz e obras antigas</h2><div class="desc">Fluxos que não são obras da Ata</div></div>
+    <div class="cards-3" id="outros-cards"></div>
+  </section>
+
+  <section id="sec-retiradas">
+    <div class="section-head"><h2><span class="num">6</span>Retiradas Enpavi</h2><div class="desc">Pagamentos dos caixas às empresas Enpavi, Usinas SP e ESO</div></div>
+    <p class="lead" id="ret-lead"></p>
+    <div class="grid-2">
+      <div class="card"><div class="legend" id="ret-legend"></div><div id="ret-empresas"></div></div>
+      <div class="card"><div id="ret-abas"></div></div>
+    </div>
+  </section>
+
+  <section id="sec-mensal">
+    <div class="section-head"><h2><span class="num">7</span>Encontro de contas mês a mês</h2><div class="desc">Aba ENCONTRO ENPAVI: saldo acumulado e juros simples</div></div>
+    <p class="lead" id="mensal-lead"></p>
+    <div class="card">
+      <div class="legend" id="line-legend"></div>
+      <div class="chart" id="line-chart"></div>
+    </div>
+    <div class="table-wrap tall" style="margin-top:16px">
+      <table class="compact">
+        <thead><tr>
+          <th class="static">Mês</th><th class="static num">Parte Enpavi obras</th><th class="static num">Custo 029</th><th class="static num">Obras antigas</th>
+          <th class="static num">Retiradas</th><th class="static num">Provisões</th><th class="static num">Saldo sem juros</th><th class="static num">Juros do mês</th>
+          <th class="static num">Juros acumulados</th><th class="static num">Saldo com juros</th>
+        </tr></thead>
+        <tbody id="month-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="sec-cascata">
+    <div class="section-head"><h2><span class="num">8</span>Do resultado ao saldo final</h2><div class="desc">Composição do resumo K4 → K11 da PREMISSAS ENPAVI</div></div>
+    <div class="card"><div class="chart" id="waterfall"></div></div>
+  </section>
+
+  <section id="sec-simulador">
+    <div class="section-head"><h2><span class="num">9</span>Simulador</h2><div class="desc">Mude premissas e veja o efeito no saldo — a planilha não é alterada</div></div>
+    <p class="lead">O simulador refaz o encontro de contas mês a mês, com a mesma lógica da aba ENCONTRO ENPAVI. Altere os percentuais, a taxa de juros, o mês de corte ou desligue blocos para ver o impacto.</p>
+    <div class="sim">
+      <div>
+        <div class="sim-controls">
+          <label class="field">Juros ao mês (%)<input type="number" step="0.01" id="s-juros"></label>
+          <label class="field">Mês de corte<select id="s-corte"></select></label>
+        </div>
+        <div class="toggles" id="s-toggles"></div>
+        <div class="table-wrap sim-lines">
+          <table>
+            <thead><tr><th class="static">Linha</th><th class="static num">% Tríade / taxa</th><th class="static num">% Enpavi s/ Tríade</th><th class="static num">Parte Enpavi</th></tr></thead>
+            <tbody id="s-lines"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="sim-res">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th class="static">Resumo</th><th class="static num">Planilha</th><th class="static num">Simulação</th><th class="static num">Diferença</th></tr></thead>
+            <tbody id="s-res"></tbody>
+          </table>
+        </div>
+        <div class="card" style="margin-top:14px"><div class="legend" id="s-legend"></div><div class="chart" id="s-chart"></div></div>
+        <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap"><button class="btn" type="button" id="s-reset">Voltar aos valores da planilha</button></div>
+        <div class="check" id="s-check"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="sec-aberto">
+    <div class="section-head"><h2><span class="num">10</span>Pontos em aberto</h2><div class="desc">Itens a confirmar antes de fechar a distribuição</div></div>
+    <div class="card">
+      <ul class="open-list">
+        <li id="aberto-ret"><b>Retiradas Enpavi:</b> definir se os pagamentos dos caixas à Enpavi, Usinas SP e ESO entram no encontro, e com qual percentual (eles já são despesa nos caixas das obras).</li>
+        <li><b>Usina Caçapava × PROCESSOS E RETIRADAS ENPAVI:</b> diferença de R$ 86.666,65 até a data de corte nas retiradas lançadas no Dashboard da usina.</li>
+        <li><b>DER:</b> receita calculada das obras 01, 02, 09 e 15 (R$ 61,8 mi) × valor usado antes (R$ 90,9 mi).</li>
+        <li><b>OBRA 06:</b> confirmar o % Tríade de 100% no consórcio DT PR 445.</li>
+        <li><b>Obras antigas:</b> hoje entram 100% da diferença Enpavi × DP Barros.</li>
+        <li><b>Matriz:</b> ISS do DT PR (R$ 1,26 mi desde 10/2022) e IRPJ/CSLL de 2026 não aparecem na CUSTO MATRIZ.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="sec-glossario">
+    <div class="section-head"><h2><span class="num">11</span>Glossário</h2></div>
+    <div class="card">
+      <dl class="gloss">
+        <dt>SCP</dt><dd>Sociedade em Conta de Participação entre a Tríade e a Enpavi. A Tríade executa as obras e divide o resultado com a Enpavi conforme os percentuais das premissas.</dd>
+        <dt>Resultado 100%</dt><dd>Entradas menos saídas do caixa da obra, pagas entre a data de início e a data de corte, só com lançamentos considerados.</dd>
+        <dt>% Tríade na obra</dt><dd>Participação da Tríade no contrato. É 100% nas obras próprias e pode ser menor nos consórcios.</dd>
+        <dt>% Enpavi sobre a parte da Tríade</dt><dd>Fatia da Enpavi dentro da parte da Tríade. O padrão é 50%.</dd>
+        <dt>% efetivo</dt><dd>% Tríade × % Enpavi sobre a parte da Tríade. É o percentual do resultado 100% que fica com a Enpavi.</dd>
+        <dt>Data de corte</dt><dd>Último mês considerado no encontro de contas. Lançamentos pagos depois dela ficam de fora.</dd>
+        <dt>Juros simples</dt><dd>Todo mês, o saldo sem juros daquele mês × a taxa mensal. Os juros vão se somando, mas não entram na base dos meses seguintes.</dd>
+        <dt>S/N (considerar)</dt><dd>Coluna dos caixas: N tira o lançamento do resultado; vazio ou S considera.</dd>
+        <dt>Saldo positivo / negativo</dt><dd>Positivo = a favor da Enpavi (a Tríade deve à Enpavi). Negativo = a favor da Tríade (a Enpavi deve à Tríade).</dd>
+      </dl>
+    </div>
+  </section>
+
+  <footer>
+    <span>Fonte: planilha <b id="footer-file">—</b> · abas PREMISSAS ENPAVI, ENCONTRO ENPAVI e RECEITAS ENPAVI-USINAS SP-ESO.</span>
+    <span id="footer-gen">—</span>
+  </footer>
+</div>
+
+<div class="viztip" id="viztip"></div>
+
+<script id="site-data" type="application/json">__SITE_DATA_JSON__</script>
+<script>
+/*SIM-START*/
+// Refaz o encontro de contas mês a mês com a mesma lógica da aba ENCONTRO ENPAVI.
+// p = { E:{linha:valor}, F:{linha:valor}, juros, corteIdx, liga:{matriz,usina,c029,antigas,adm,retirada,provisoes} }
+function grupoLiga(tipo){
+  return ({ matriz:'matriz', usina:'usina', c029:'c029', antiga:'antigas', adm:'adm', retirada:'retirada' })[tipo] || 'obras';
+}
+function simular(D, p){
+  var n = D.meses.length, c = p.corteIdx, i, m;
+  function zeros(){ var a = new Array(n); for (var k = 0; k < n; k++) a[k] = 0; return a; }
+  var AD = zeros(), AE = zeros(), AF = zeros(), AH = zeros(), AI = zeros(), AJ = zeros(), AL = zeros(), AM = zeros(), AN = zeros();
+  var startKey = (D.params.inicio || D.meses[0]).slice(0, 7);
+  var cutKey = D.meses[c].slice(0, 7);
+  var porLinha = {};
+  D.linhas.forEach(function(l){ porLinha[l.linha] = l; });
+  function val(map, linha, padrao){ return Object.prototype.hasOwnProperty.call(map, linha) ? map[linha] : padrao; }
+  function gateIdx(iso){
+    var key = iso ? iso.slice(0, 7) : cutKey;
+    if (key < startKey) return n;              // data antes do início: o valor nunca entra
+    for (var k = 0; k < n; k++) if (D.meses[k].slice(0, 7) === key) return k;
+    return n;
+  }
+  var detalhe = {};
+  D.linhas.forEach(function(l){
+    var E = val(p.E, l.linha, l.E), F = val(p.F, l.linha, l.F);
+    var G = l.tipo === 'adm' ? F : E * F;
+    var on = p.liga[grupoLiga(l.tipo)] !== false;
+    var H = 0, g;
+    if (l.tipo === 'adm') {
+      var base = 0;
+      l.adm.partes.forEach(function(pt){
+        var r = (D.receitaObras[pt.obra] || [])[c] || 0;
+        var f = 1;
+        if (pt.linhaE) f = val(p.E, pt.linhaE, (porLinha[pt.linhaE] || { E: 1 }).E);
+        base += r * f;
+      });
+      H = -base * E;
+      if (on) { g = gateIdx(l.data); for (m = g; m <= c; m++) AD[m] += H * G; }
+      detalhe[l.linha] = { base: base };
+    } else if (l.tipo === 'retirada') {
+      H = l.H;
+      if (on) { g = gateIdx(l.data); for (m = g; m <= c; m++) AH[m] += H * G; }
+    } else {
+      var serie = D.fluxos[l.col].serie;
+      H = serie[c];
+      var alvo = l.tipo === 'c029' ? AE : (l.tipo === 'antiga' ? AF : AD);
+      if (on) for (m = 0; m <= c; m++) alvo[m] += serie[m] * G;
+    }
+    var d = detalhe[l.linha] || {};
+    d.E = E; d.F = F; d.G = G; d.H = H; d.J = on ? H * G : 0; d.on = on;
+    detalhe[l.linha] = d;
+  });
+  if (p.liga.provisoes !== false) AI[c] = D.provisoes.totalEnpavi;
+  var AG = D.encontro.AG, acc = 0;
+  for (m = 0; m <= c; m++) {
+    AJ[m] = AD[m] + AE[m] + AF[m] + (AG[m] || 0) + AH[m] + AI[m];
+    AL[m] = D.meses[m].slice(0, 7) >= startKey ? AJ[m] * p.juros : 0;
+    acc += AL[m]; AM[m] = acc; AN[m] = AJ[m] + AM[m];
+  }
+  return {
+    res: { K4: AD[c], K5: AE[c], K6: AF[c], K7: (AG[c] || 0) + AH[c], K8: AI[c], K9: AJ[c], K10: AM[c], K11: AN[c] },
+    AJ: AJ, AM: AM, AN: AN, detalhe: detalhe
+  };
+}
+function parametrosDaPlanilha(D){
+  return { E: {}, F: {}, juros: D.params.juros, corteIdx: D.corteIdx,
+           liga: { matriz: true, usina: true, c029: true, antigas: true, adm: true, retirada: true, provisoes: true } };
+}
+/*SIM-END*/
+
+(function(){
+  "use strict";
+  var D = JSON.parse(document.getElementById('site-data').textContent);
+  var KEYS = ['K4','K5','K6','K7','K8','K9','K10','K11'];
+
+  // ---------------- formatação ----------------
+  var nf2 = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  function fmtBRL(n){ n = +n || 0; if (Math.abs(n) < 0.005) n = 0; return (n < 0 ? '−R$ ' : 'R$ ') + nf2.format(Math.abs(n)); }
+  function fmtMi(n){
+    var a = Math.abs(n), s;
+    if (a >= 1e6) s = (a / 1e6).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: a >= 1e7 ? 1 : 2 }) + ' mi';
+    else if (a >= 1e3) s = Math.round(a / 1e3).toLocaleString('pt-BR') + ' mil';
+    else s = Math.round(a).toLocaleString('pt-BR');
+    return (n < -0.5 ? '−' : '') + 'R$ ' + s;
+  }
+  function fmtPct(x, dec){
+    x = +x || 0;
+    var d = dec != null ? dec : (Math.abs(x * 100 - Math.round(x * 100)) > 1e-9 ? 2 : 0);
+    return (x * 100).toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d }) + '%';
+  }
+  function fmtDate(iso){ if (!iso) return '—'; var p = iso.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+  var MES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  function fmtMes(iso){ var p = iso.split('-'); return MES[+p[1] - 1] + '/' + p[0]; }
+  function fmtMesCurto(iso){ var p = iso.split('-'); return MES[+p[1] - 1] + '/' + p[0].slice(2); }
+  function el(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined && text !== null) e.textContent = text; return e; }
+  function sgn(n){ return n > 0.005 ? 'pos' : (n < -0.005 ? 'neg' : ''); }
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  function sv(tag, attrs, text){ var e = document.createElementNS(SVGNS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); if (text != null) e.textContent = text; return e; }
+  function cssVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+  var tip = document.getElementById('viztip');
+  function showTip(x, y, html){ tip.innerHTML = html; tip.style.left = x + 'px'; tip.style.top = y + 'px'; tip.classList.add('show'); }
+  function hideTip(){ tip.classList.remove('show'); }
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+  var ICONS = {
+    up: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15l6-6 4 4 6-8"/><path d="M14 5h6v6"/></svg>',
+    down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9l6 6 4-4 6 8"/><path d="M14 19h6v-6"/></svg>',
+    scale: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 7h14"/><path d="M5 7l-3 7a4 4 0 0 0 6 0z"/><path d="M19 7l-3 7a4 4 0 0 0 6 0z"/></svg>'
+  };
+
+  // ---------------- grupos ----------------
+  var GRUPOS = {
+    propria:   { nome: 'Obras próprias', cor: 'var(--cat-1)' },
+    consorcio: { nome: 'Consórcios', cor: 'var(--cat-3)' },
+    matriz:    { nome: 'Matriz', cor: 'var(--cat-5)' },
+    usina:     { nome: 'Usina', cor: 'var(--cat-4)' },
+    c029:      { nome: 'Custo 029', cor: 'var(--cat-2)' },
+    antiga:    { nome: 'Obras antigas', cor: 'var(--treasury)' },
+    adm:       { nome: 'Adm. central', cor: 'var(--muted)' },
+    retirada:  { nome: 'Retiradas', cor: 'var(--critical)' },
+    outro:     { nome: 'Outros', cor: 'var(--muted)' }
+  };
+  function nomeLinha(l){
+    if (l.tipo === 'adm') return 'Adm. central – ' + String(l.descricao || '').replace(/^OBRAS\s+/i, '');
+    return l.codigo + (l.descricao ? ' – ' + l.descricao : '');
+  }
+
+  // ---------------- cabeçalho e KPIs ----------------
+  document.getElementById('meta-corte').textContent = fmtDate(D.params.corte);
+  document.getElementById('meta-inicio').textContent = fmtDate(D.params.inicio);
+  document.getElementById('meta-juros').textContent = fmtPct(D.params.juros, 1) + ' ao mês (' + String(D.params.formaJuros || 'simples').toLowerCase() + ')';
+  document.getElementById('meta-salva').textContent = D.meta.planilhaSalvaEm;
+  document.getElementById('footer-file').textContent = D.meta.sourceFile;
+  document.getElementById('footer-gen').textContent = 'Apresentação gerada em ' + D.meta.generatedAt;
+
+  var R = D.resumo;
+  var kpiDefs = [
+    { k: 'K4', t: 'Parte Enpavi nas obras, usina, matriz e adm. central' },
+    { k: 'K5', t: 'Custo 029 (Enpavi direto)' },
+    { k: 'K6', t: 'Obras antigas (Enpavi × DP)' },
+    { k: 'K7', t: 'Retiradas / adiantamentos' },
+    { k: 'K8', t: 'Provisões na data de corte' },
+    { k: 'K9', t: 'Saldo sem juros' },
+    { k: 'K10', t: 'Juros acumulados' },
+    { k: 'K11', t: 'Saldo com juros' }
+  ];
+  var kpiRow = document.getElementById('kpi-row');
+  kpiDefs.forEach(function(d){
+    var v = R[d.k], box = el('div', 'kpi');
+    var lab = el('div', 'label');
+    if (d.k === 'K11' || d.k === 'K9') box.className = 'kpi hl';
+    var ic = el('span', 'icon ' + (v > 0.005 ? 'good' : (v < -0.005 ? 'critical' : ''))); ic.innerHTML = d.k === 'K11' ? ICONS.scale : (v >= -0.005 ? ICONS.up : ICONS.down);
+    lab.appendChild(ic); lab.appendChild(document.createTextNode(d.t));
+    box.appendChild(lab);
+    box.appendChild(el('div', 'value tabular ' + (v < -0.005 ? 'critical' : (v > 0.005 ? 'good' : '')), fmtBRL(v)));
+    box.appendChild(el('div', 'note', 'Célula ' + d.k + ' da PREMISSAS'));
+    kpiRow.appendChild(box);
+  });
+  var verdict = document.getElementById('verdict');
+  var favEnpavi = R.K11 >= 0;
+  verdict.className = 'verdict' + (favEnpavi ? ' good' : '');
+  verdict.innerHTML = '<span class="icon">' + ICONS.scale + '</span><div><b>' + esc(R.texto || (favEnpavi ? 'Saldo a favor da Enpavi' : 'Saldo a favor da Tríade')) + '</b><br>' +
+    (favEnpavi ? 'A Tríade deve ' : 'A Enpavi deve ') + '<b class="tabular">' + fmtBRL(Math.abs(R.K11)) + '</b> ' + (favEnpavi ? 'à Enpavi' : 'à Tríade') +
+    ' na data de corte (' + fmtDate(D.params.corte) + '), já com ' + fmtBRL(Math.abs(R.K10)) + ' de juros.</div>';
+
+  // ---------------- 1. como funciona ----------------
+  var pad = D.params.pctPadrao;
+  document.getElementById('como-lead').innerHTML = 'A Enpavi participa do resultado das obras em que a Tríade tem participação. Por padrão, a Enpavi fica com <b>' + fmtPct(pad) +
+    ' da parte da Tríade</b>. Como a Tríade nem sempre tem 100% da obra (nos consórcios a fatia é menor), o percentual efetivo da Enpavi é o produto dos dois. ' +
+    'Valores positivos são a favor da Enpavi; negativos, a favor da Tríade.';
+  var ex = D.linhas.filter(function(l){ return l.tipo === 'consorcio' && l.E < 1 && l.E > 0 && Math.abs(l.H) > 1000; })[0] ||
+           D.linhas.filter(function(l){ return l.tipo === 'propria'; })[0];
+  var steps = document.getElementById('steps');
+  [
+    { t: 'Resultado da obra (100%)', p: 'Entradas menos saídas do caixa da obra, pagas entre a data de início e a data de corte. Lançamentos marcados com N ficam de fora.',
+      e: ex ? ex.codigo + ' – ' + ex.descricao + ':<br><b class="tabular">' + fmtBRL(ex.H) + '</b>' : '' },
+    { t: 'Parte da Tríade', p: 'Resultado × % da Tríade na obra. Nas obras próprias a Tríade tem 100%; nos consórcios, a fatia do contrato.',
+      e: ex ? fmtBRL(ex.H) + ' × ' + fmtPct(ex.E) + ' =<br><b class="tabular">' + fmtBRL(ex.H * ex.E) + '</b>' : '' },
+    { t: 'Parte da Enpavi', p: 'Parte da Tríade × % da Enpavi sobre a parte da Tríade (padrão ' + fmtPct(pad) + '). O % efetivo é o produto dos dois percentuais.',
+      e: ex ? fmtBRL(ex.H * ex.E) + ' × ' + fmtPct(ex.F) + ' =<br><b class="tabular">' + fmtBRL(ex.H * ex.G) + '</b> (' + fmtPct(ex.G) + ' efetivo)' : '' }
+  ].forEach(function(s, i){
+    var c = el('div', 'step');
+    c.appendChild(el('div', 'n', String(i + 1)));
+    c.appendChild(el('h3', null, s.t));
+    c.appendChild(el('p', null, s.p));
+    if (s.e) { var e = el('div', 'ex'); e.innerHTML = s.e; c.appendChild(e); }
+    steps.appendChild(c);
+  });
+  var items = document.getElementById('items-grid');
+  [
+    { t: 'Além das obras', p: 'Entram também a matriz (impostos), a Usina Caçapava, o custo 029 (100% Enpavi) e as obras antigas (diferença Enpavi × DP Barros).' },
+    { t: 'Ajustes', p: 'Administração central sobre a receita das obras, retiradas já recebidas e provisões (retenções e IR a pagar) na data de corte.' },
+    { t: 'Juros', p: 'Sobre o saldo de cada mês corre juros simples de ' + fmtPct(D.params.juros, 1) + ' ao mês, da data de início até a data de corte.' }
+  ].forEach(function(s){ var c = el('div', 'item'); c.appendChild(el('div', 'it-t', s.t)); c.appendChild(el('p', null, s.p)); items.appendChild(c); });
+
+  // ---------------- 2. parâmetros ----------------
+  var params = document.getElementById('params');
+  [
+    { l: 'Data de início', v: fmtDate(D.params.inicio), p: 'Só entram lançamentos pagos a partir do mês desta data, e os juros começam a correr nele.' },
+    { l: 'Data de corte', v: fmtDate(D.params.corte), p: 'Último mês do encontro de contas. Provisões, retiradas e a adm. central entram neste mês.' },
+    { l: 'Juros ao mês', v: fmtPct(D.params.juros, 1), p: 'Taxa fixa, juros simples: juros do mês = saldo sem juros do mês × taxa.' },
+    { l: '% Enpavi padrão', v: fmtPct(pad), p: 'Percentual da Enpavi sobre a parte da Tríade, usado nas linhas que não têm percentual próprio.' }
+  ].forEach(function(x){
+    var c = el('div', 'param'); c.appendChild(el('div', 'p-l', x.l)); c.appendChild(el('div', 'p-v tabular', x.v)); c.appendChild(el('p', null, x.p)); params.appendChild(c);
+  });
+
+  // ---------------- 3. participações ----------------
+  var filtro = null;
+  var chips = document.getElementById('grp-chips');
+  var tiposPresentes = [];
+  D.linhas.forEach(function(l){ if (tiposPresentes.indexOf(l.tipo) < 0) tiposPresentes.push(l.tipo); });
+  function mkChip(label, tipo, cnt){
+    var b = el('button', 'chip'); b.type = 'button';
+    if (tipo) { var sw = el('span', 'swatch'); sw.style.cssText = 'display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;background:' + (GRUPOS[tipo] || GRUPOS.outro).cor; b.appendChild(sw); }
+    b.appendChild(document.createTextNode(label));
+    if (cnt != null) b.appendChild(el('span', 'cnt', String(cnt)));
+    b.setAttribute('aria-pressed', String(filtro === tipo));
+    b.addEventListener('click', function(){ filtro = tipo; renderChips(); renderPart(); });
+    chips.appendChild(b);
+  }
+  function renderChips(){
+    chips.innerHTML = '';
+    mkChip('Todos', null, D.linhas.length);
+    tiposPresentes.forEach(function(t){ mkChip((GRUPOS[t] || GRUPOS.outro).nome, t, D.linhas.filter(function(l){ return l.tipo === t; }).length); });
+  }
+  function renderPart(){
+    var body = document.getElementById('part-body'); body.innerHTML = '';
+    var sh = 0, si = 0, sj = 0;
+    D.linhas.forEach(function(l){
+      if (filtro && l.tipo !== filtro) return;
+      var tr = el('tr');
+      var g = GRUPOS[l.tipo] || GRUPOS.outro, tdc = el('td', 'code'), s = el('span', 'swatch'); s.style.background = g.cor; s.title = g.nome;
+      tdc.appendChild(s); tdc.appendChild(document.createTextNode(l.tipo === 'adm' ? 'ADM. CENTRAL' : l.codigo)); tdc.title = g.nome; tr.appendChild(tdc);
+      tr.appendChild(el('td', null, l.tipo === 'adm' ? 'Obras ' + String(l.descricao || '').replace(/^OBRAS\s+/i, '') : l.descricao));
+      tr.appendChild(el('td', 'num tabular', l.tipo === 'adm' ? 'taxa ' + fmtPct(l.E) : fmtPct(l.E)));
+      tr.appendChild(el('td', 'num tabular', fmtPct(l.F)));
+      tr.appendChild(el('td', 'num tabular', fmtPct(l.G)));
+      tr.appendChild(el('td', 'num tabular ' + sgn(l.H), fmtBRL(l.H)));
+      tr.appendChild(el('td', 'num tabular', l.Ivazio ? '–' : fmtBRL(l.I)));
+      tr.appendChild(el('td', 'num tabular ' + sgn(l.J), fmtBRL(l.J)));
+      body.appendChild(tr);
+      sh += l.H; if (!l.Ivazio) si += l.I; sj += l.J;
+    });
+    document.getElementById('part-foot-l').textContent = filtro ? 'Total – ' + (GRUPOS[filtro] || GRUPOS.outro).nome : 'Total (linha TOTAL da PREMISSAS)';
+    document.getElementById('part-foot-h').textContent = filtro ? fmtBRL(sh) : '';
+    document.getElementById('part-foot-i').textContent = fmtBRL(filtro ? si : D.total1.I);
+    document.getElementById('part-foot-j').textContent = fmtBRL(filtro ? sj : D.total1.J);
+  }
+  renderChips(); renderPart();
+
+  (function(){
+    var box = document.getElementById('divbars');
+    var rows = D.linhas.filter(function(l){ return Math.abs(l.J) > 0.5; }).slice().sort(function(a, b){ return b.J - a.J; });
+    var max = rows.reduce(function(m, l){ return Math.max(m, Math.abs(l.J)); }, 1);
+    rows.forEach(function(l){
+      var r = el('div', 'divbar');
+      r.appendChild(el('div', 'db-l', l.tipo === 'adm' ? 'Adm. ' + String(l.descricao || '').replace(/^OBRAS\s+/i, '') : l.codigo));
+      var tr = el('div', 'db-track'), f = el('div', 'db-fill');
+      var w = Math.abs(l.J) / max * 50;
+      f.style.width = w + '%';
+      if (l.J >= 0) { f.style.left = '50%'; f.style.background = 'var(--good)'; } else { f.style.left = (50 - w) + '%'; f.style.background = 'var(--critical)'; }
+      tr.appendChild(f); r.appendChild(tr);
+      r.appendChild(el('div', 'db-v tabular ' + sgn(l.J), fmtMi(l.J)));
+      r.addEventListener('mousemove', function(e){ showTip(e.clientX, e.clientY, '<div class="t-val">' + fmtBRL(l.J) + '</div><div class="t-key">' + esc(nomeLinha(l)) + '</div>'); });
+      r.addEventListener('mouseleave', hideTip);
+      box.appendChild(r);
+    });
+  })();
+
+  // ---------------- 4. administração central ----------------
+  var nomeObra = {};
+  D.linhas.forEach(function(l){ var m = /^OBRA\s+(\S+)/i.exec(l.codigo); if (m) nomeObra[m[1]] = l; });
+  var admCards = document.getElementById('adm-cards');
+  var admLinhas = D.linhas.filter(function(l){ return l.tipo === 'adm'; });
+  var c0 = D.corteIdx;
+  admLinhas.forEach(function(l){
+    var base = 0;
+    l.adm.partes.forEach(function(pt){
+      var r = (D.receitaObras[pt.obra] || [])[c0] || 0;
+      var f = pt.linhaE ? ((D.linhas.filter(function(x){ return x.linha === pt.linhaE; })[0] || { E: 1 }).E) : 1;
+      base += r * f;
+    });
+    var c = el('div', 'mini');
+    c.appendChild(el('div', 'm-t', 'Obras ' + String(l.descricao || '').replace(/^OBRAS\s+/i, '')));
+    c.appendChild(el('div', 'm-s', 'Obras ' + l.adm.partes.map(function(p){ return p.obra; }).join(', ') + (l.adm.partes.some(function(p){ return p.linhaE; }) ? ' · receita proporcional ao % Tríade' : '')));
+    c.appendChild(el('div', 'm-v tabular ' + sgn(l.H), fmtBRL(l.H)));
+    [['Receita considerada', fmtBRL(base)], ['Taxa', fmtPct(l.E)], ['Parte Enpavi (' + fmtPct(l.G) + ')', fmtBRL(l.J)],
+     ['Entra em', l.data ? fmtMes(l.data) : 'mês de corte']].forEach(function(r){
+      var row = el('div', 'm-row'); row.appendChild(el('span', null, r[0])); row.appendChild(el('span', 'tabular', r[1])); c.appendChild(row);
+    });
+    if (Math.abs(l.E) < 1e-9) c.appendChild(el('p', 'small', 'Taxa ainda não informada na planilha.'));
+    admCards.appendChild(c);
+  });
+  (function(){
+    var box = document.getElementById('adm-sabesp');
+    var prop = admLinhas.filter(function(l){ return l.adm.partes.some(function(p){ return p.linhaE; }); })[0];
+    if (!prop) { box.style.display = 'none'; return; }
+    var html = '<b>Por que a linha ' + esc(String(prop.descricao || '').replace(/^OBRAS\s+/i, '')) + ' é proporcional?</b> Parte dessas obras é de consórcio, em que a Tríade não tem 100%. ' +
+      'Por isso a receita de cada obra entra multiplicada pelo % da Tríade nela:<div class="table-wrap" style="margin-top:10px"><table style="min-width:0"><thead><tr>' +
+      '<th class="static">Obra</th><th class="static num">Receita 100%</th><th class="static num">% Tríade</th><th class="static num">Receita considerada</th></tr></thead><tbody>';
+    var tot = 0;
+    prop.adm.partes.forEach(function(pt){
+      var r = (D.receitaObras[pt.obra] || [])[c0] || 0;
+      var lin = D.linhas.filter(function(x){ return x.linha === pt.linhaE; })[0] || { E: 1, descricao: '' };
+      tot += r * lin.E;
+      html += '<tr><td>Obra ' + esc(pt.obra) + ' – ' + esc(lin.descricao) + '</td><td class="num tabular">' + fmtBRL(r) + '</td><td class="num tabular">' + fmtPct(lin.E) + '</td><td class="num tabular">' + fmtBRL(r * lin.E) + '</td></tr>';
+    });
+    html += '</tbody><tfoot><tr><td colspan="3">Total × taxa de ' + fmtPct(prop.E) + '</td><td class="num tabular">' + fmtBRL(-tot * prop.E) + '</td></tr></tfoot></table></div>';
+    box.innerHTML = html;
+  })();
+
+  // ---------------- 5. usina, 029, matriz e antigas ----------------
+  var outros = document.getElementById('outros-cards');
+  function miniCard(titulo, sub, valor100, enpavi, texto){
+    var c = el('div', 'mini');
+    c.appendChild(el('div', 'm-t', titulo));
+    if (sub) c.appendChild(el('div', 'm-s', sub));
+    c.appendChild(el('div', 'm-v tabular ' + sgn(enpavi), fmtBRL(enpavi)));
+    var r1 = el('div', 'm-row'); r1.appendChild(el('span', null, 'Resultado 100%')); r1.appendChild(el('span', 'tabular', fmtBRL(valor100))); c.appendChild(r1);
+    c.appendChild(el('p', null, texto));
+    outros.appendChild(c);
+  }
+  D.linhas.filter(function(l){ return l.tipo === 'usina'; }).forEach(function(l){
+    miniCard('Usina Caçapava', 'Parte Enpavi · ' + fmtPct(l.G) + ' efetivo', l.H, l.J,
+      'Fluxo completo da usina (aba CAÇAPAV, extraída do Dashboard da usina): faturamento menos custos e retiradas. Entra mês a mês e corre juros, como as obras.');
+  });
+  D.linhas.filter(function(l){ return l.tipo === 'c029'; }).forEach(function(l){
+    miniCard('Custo 029', 'Lançamento direto da Enpavi · ' + fmtPct(l.G), l.H, l.J, 'Custos pagos diretamente pela/para a Enpavi (aba ENPAVI - CUSTO 029). Entra 100% na conta da Enpavi.');
+  });
+  D.linhas.filter(function(l){ return l.tipo === 'matriz'; }).forEach(function(l){
+    miniCard('Matriz', 'Impostos da matriz · ' + fmtPct(l.G) + ' efetivo', l.H, l.J, 'Só os impostos da CUSTO MATRIZ (ISS, PIS/COFINS, IRPJ/CSLL), divididos pelo mesmo critério das obras.');
+  });
+  (function(){
+    var ants = D.linhas.filter(function(l){ return l.tipo === 'antiga'; });
+    if (!ants.length) return;
+    var c = el('div', 'mini');
+    var tot = ants.reduce(function(s, l){ return s + l.J; }, 0);
+    c.appendChild(el('div', 'm-t', 'Obras antigas'));
+    c.appendChild(el('div', 'm-s', 'Diferença Enpavi × DP Barros'));
+    c.appendChild(el('div', 'm-v tabular ' + sgn(tot), fmtBRL(tot)));
+    ants.forEach(function(l){ var r = el('div', 'm-row'); r.appendChild(el('span', null, l.descricao)); r.appendChild(el('span', 'tabular ' + sgn(l.J), fmtBRL(l.J))); c.appendChild(r); });
+    outros.appendChild(c);
+  })();
+
+  // ---------------- 6. retiradas ----------------
+  (function(){
+    var ret = D.linhas.filter(function(l){ return l.tipo === 'retirada'; })[0];
+    var rc = D.receitas;
+    var lead = document.getElementById('ret-lead');
+    var txt = '';
+    if (ret) {
+      txt = 'A linha <b>RETIRADAS ENPAVI</b> da PREMISSAS ' + (Math.abs(ret.H) > 0.5
+        ? 'entra com <b class="tabular">' + fmtBRL(ret.H) + '</b>, ' + fmtPct(ret.G) + ' contra a Enpavi, ' + (ret.data ? 'em ' + fmtMes(ret.data) : 'no mês de corte') + '.'
+        : 'está <b>zerada</b> na planilha hoje: os pagamentos abaixo não entram no saldo.');
+    }
+    if (rc && rc.totalAba) txt += ' Os caixas das obras pagaram <b class="tabular">' + fmtBRL(rc.totalAba.total) + '</b> às empresas Enpavi, Usinas SP e ESO (aba RECEITAS ENPAVI-USINAS SP-ESO). Esses pagamentos já são despesa nos caixas das obras.';
+    lead.innerHTML = txt;
+    var ab = document.getElementById('aberto-ret');
+    if (ab && ret) ab.innerHTML = '<b>Retiradas Enpavi:</b> ' + (Math.abs(ret.H) > 0.5
+      ? 'a linha entra hoje com <span class="tabular">' + fmtBRL(ret.H) + '</span> (' + fmtPct(ret.G) + ' para a Enpavi). Confirmar o valor e o percentual, já que esses pagamentos também são despesa nos caixas das obras.'
+      : 'a linha está na planilha, mas hoje entra com valor zero. Definir se os pagamentos dos caixas à Enpavi, Usinas SP e ESO entram no encontro, e com qual percentual (eles já são despesa nos caixas das obras).');
+    if (!rc || !rc.totalAba) { document.getElementById('ret-empresas').parentNode.parentNode.style.display = 'none'; return; }
+    var emp = [['Enpavi', rc.totalAba.enpavi, 'var(--cat-1)'], ['Usinas SP', rc.totalAba.usinas, 'var(--cat-4)'], ['ESO Assessoria', rc.totalAba.eso, 'var(--cat-5)']];
+    var lg = document.getElementById('ret-legend');
+    lg.appendChild(el('div', 'legend-item', 'Por empresa'));
+    var box = document.getElementById('ret-empresas');
+    var maxE = Math.max.apply(null, emp.map(function(e){ return e[1]; }).concat([1]));
+    emp.forEach(function(e){
+      var r = el('div', 'rankbar-row');
+      r.appendChild(el('div', 'rb-label', e[0]));
+      var t = el('div', 'rankbar-track'), f = el('div', 'rankbar-fill'); f.style.width = (e[1] / maxE * 100) + '%'; f.style.background = e[2]; t.appendChild(f); r.appendChild(t);
+      var v = el('div', 'rb-value tabular', fmtMi(e[1])); v.appendChild(el('div', 'rb-pct', fmtPct(e[1] / rc.totalAba.total, 1))); r.appendChild(v);
+      box.appendChild(r);
+    });
+    var box2 = document.getElementById('ret-abas');
+    box2.appendChild(el('div', 'legend-item', 'Por aba de origem'));
+    var abas = rc.porAba.slice().sort(function(a, b){ return b.total - a.total; });
+    var maxA = Math.max.apply(null, abas.map(function(a){ return a.total; }).concat([1]));
+    abas.forEach(function(a){
+      var r = el('div', 'rankbar-row');
+      r.appendChild(el('div', 'rb-label', a.aba));
+      var t = el('div', 'rankbar-track');
+      var x = 0;
+      [['enpavi', 'var(--cat-1)'], ['usinas', 'var(--cat-4)'], ['eso', 'var(--cat-5)']].forEach(function(k){
+        var w = a[k[0]] / maxA * 100; if (w <= 0) return;
+        var f = el('div', 'rankbar-fill'); f.style.left = x + '%'; f.style.width = w + '%'; f.style.background = k[1]; f.style.borderRadius = '0'; t.appendChild(f); x += w;
+      });
+      r.appendChild(t);
+      r.appendChild(el('div', 'rb-value tabular', fmtMi(a.total)));
+      r.addEventListener('mousemove', function(e){ showTip(e.clientX, e.clientY, '<div class="t-val">' + fmtBRL(a.total) + '</div><div class="t-key">' + esc(a.aba) + ' · ' + a.qtd + ' lançamentos</div>' +
+        '<div class="t-row"><span>Enpavi</span><span>' + fmtBRL(a.enpavi) + '</span></div><div class="t-row"><span>Usinas SP</span><span>' + fmtBRL(a.usinas) + '</span></div><div class="t-row"><span>ESO</span><span>' + fmtBRL(a.eso) + '</span></div>'); });
+      r.addEventListener('mouseleave', hideTip);
+      box2.appendChild(r);
+    });
+  })();
+
+  // ---------------- gráfico de linhas (SVG) ----------------
+  function niceTicks(min, max, count){
+    if (min === max) { min -= 1; max += 1; }
+    var span = max - min, step = Math.pow(10, Math.floor(Math.log10(span / count))), err = span / count / step;
+    if (err >= 7.5) step *= 10; else if (err >= 3.5) step *= 5; else if (err >= 1.5) step *= 2;
+    var t = [], v = Math.floor(min / step) * step;
+    for (; v <= max + step * 0.5; v += step) t.push(v);
+    return t;
+  }
+  function lineChart(box, idx0, idx1, series, size){
+    box.innerHTML = '';
+    var W = (size && size.w) || 1100, Hh = (size && size.h) || 340, ml = 78, mr = 16, mt = 14, mb = 34;
+    var svg = sv('svg', { viewBox: '0 0 ' + W + ' ' + Hh, role: 'img', 'aria-label': 'Gráfico de linhas' });
+    var all = [];
+    series.forEach(function(s){ for (var i = idx0; i <= idx1; i++) all.push(s.values[i]); });
+    var ticks = niceTicks(Math.min.apply(null, all.concat([0])), Math.max.apply(null, all.concat([0])), 6);
+    var y0 = ticks[0], y1 = ticks[ticks.length - 1];
+    var nx = Math.max(1, idx1 - idx0);
+    function X(i){ return ml + (i - idx0) / nx * (W - ml - mr); }
+    function Y(v){ return mt + (1 - (v - y0) / (y1 - y0)) * (Hh - mt - mb); }
+    var g = sv('g', { 'class': 'grid' }), ax = sv('g', { 'class': 'axis' });
+    ticks.forEach(function(t){
+      g.appendChild(sv('line', { x1: ml, x2: W - mr, y1: Y(t), y2: Y(t), 'class': Math.abs(t) < 1e-9 ? 'zero' : '' }));
+      ax.appendChild(sv('text', { x: ml - 8, y: Y(t) + 4, 'text-anchor': 'end' }, fmtMi(t)));
+    });
+    var lastYear = null;
+    for (var i = idx0; i <= idx1; i++) {
+      var yr = D.meses[i].slice(0, 4), mo = D.meses[i].slice(5, 7);
+      if (mo === '01' || i === idx0) { if (yr !== lastYear) { ax.appendChild(sv('text', { x: X(i), y: Hh - 10, 'text-anchor': 'middle' }, yr)); g.appendChild(sv('line', { x1: X(i), x2: X(i), y1: mt, y2: Hh - mb })); lastYear = yr; } }
+    }
+    svg.appendChild(g); svg.appendChild(ax);
+    series.forEach(function(s){
+      var d = '';
+      for (var i = idx0; i <= idx1; i++) d += (i === idx0 ? 'M' : 'L') + X(i).toFixed(1) + ' ' + Y(s.values[i]).toFixed(1);
+      svg.appendChild(sv('path', { d: d, fill: 'none', stroke: s.color, 'stroke-width': s.width || 2.2, 'stroke-dasharray': s.dash || '', 'stroke-linejoin': 'round' }));
+    });
+    var hl = sv('line', { 'class': 'hover-line', y1: mt, y2: Hh - mb, x1: -10, x2: -10, visibility: 'hidden' });
+    svg.appendChild(hl);
+    var dots = series.map(function(s){ var c = sv('circle', { r: 4, fill: s.color, cx: -10, cy: -10, visibility: 'hidden' }); svg.appendChild(c); return c; });
+    var hit = sv('rect', { x: ml, y: mt, width: W - ml - mr, height: Hh - mt - mb, fill: 'transparent' });
+    svg.appendChild(hit);
+    function move(evt){
+      var rect = svg.getBoundingClientRect();
+      var px = (evt.clientX - rect.left) / rect.width * W;
+      var i = Math.round(idx0 + (px - ml) / (W - ml - mr) * nx);
+      i = Math.max(idx0, Math.min(idx1, i));
+      hl.setAttribute('x1', X(i)); hl.setAttribute('x2', X(i)); hl.setAttribute('visibility', 'visible'); dots.forEach(function(d){ d.setAttribute('visibility', 'visible'); });
+      var html = '<div class="t-key" style="opacity:1;font-weight:600">' + fmtMes(D.meses[i]) + '</div>';
+      series.forEach(function(s, k){ dots[k].setAttribute('cx', X(i)); dots[k].setAttribute('cy', Y(s.values[i])); html += '<div class="t-row"><span><i style="background:' + s.color + '"></i>' + esc(s.name) + '</span><span>' + fmtBRL(s.values[i]) + '</span></div>'; });
+      showTip(evt.clientX, rect.top + Y(series[series.length - 1].values[i]) / Hh * rect.height, html);
+    }
+    hit.addEventListener('mousemove', move);
+    hit.addEventListener('mouseleave', function(){ hideTip(); hl.setAttribute('visibility', 'hidden'); dots.forEach(function(d){ d.setAttribute('visibility', 'hidden'); }); });
+    box.appendChild(svg);
+  }
+  function legend(box, series){
+    box.innerHTML = '';
+    series.forEach(function(s){ var it = el('div', 'legend-item'), sw = el('span', 'swatch'); sw.style.background = s.color; if (s.dash) { sw.style.background = 'transparent'; sw.style.border = '2px dashed ' + s.color; } it.appendChild(sw); it.appendChild(document.createTextNode(s.name)); box.appendChild(it); });
+  }
+
+  // ---------------- 7. mês a mês ----------------
+  var EN = D.encontro, cut = D.corteIdx;
+  var first = 0;
+  for (var i0 = 0; i0 <= cut; i0++) { if (Math.abs(EN.AJ[i0]) > 0.5 || Math.abs(EN.AM[i0]) > 0.5) { first = Math.max(0, i0 - 1); break; } }
+  document.getElementById('mensal-lead').innerHTML = 'Para cada mês, a planilha soma o resultado acumulado de cada fluxo até aquele mês (já multiplicado pelo % da Enpavi) e calcula os juros do mês sobre esse saldo. ' +
+    'O primeiro mês com movimento é <b>' + fmtMes(D.meses[first + (first > 0 ? 1 : 0)]) + '</b>; o último é o mês de corte, <b>' + fmtMes(D.meses[cut]) + '</b>, quando entram também a adm. central, as retiradas e as provisões.';
+  var lineSeries = [
+    { name: 'Saldo sem juros', color: cssVar('--cat-1') || '#2a78d6', values: EN.AJ },
+    { name: 'Juros acumulados', color: cssVar('--accent') || '#b5661a', values: EN.AM, dash: '6 4' },
+    { name: 'Saldo com juros', color: cssVar('--critical') || '#b3261e', values: EN.AN, width: 3 }
+  ];
+  legend(document.getElementById('line-legend'), lineSeries);
+  lineChart(document.getElementById('line-chart'), first, cut, lineSeries);
+  (function(){
+    var body = document.getElementById('month-body');
+    for (var i = cut; i >= first; i--) {
+      var tr = el('tr', i === cut ? 'cut' : '');
+      tr.appendChild(el('td', 'date', fmtMes(D.meses[i]) + (i === cut ? ' (corte)' : '')));
+      [EN.AD[i], EN.AE[i], EN.AF[i], (EN.AG[i] || 0) + (EN.AH[i] || 0), EN.AI[i], EN.AJ[i], EN.AL[i], EN.AM[i], EN.AN[i]].forEach(function(v){ tr.appendChild(el('td', 'num tabular ' + sgn(v), fmtBRL(v))); });
+      body.appendChild(tr);
+    }
+  })();
+
+  // ---------------- 8. cascata ----------------
+  (function(){
+    var box = document.getElementById('waterfall');
+    var steps = [
+      { l: 'Parte Enpavi obras', v: R.K4 }, { l: 'Custo 029', v: R.K5 }, { l: 'Obras antigas', v: R.K6 },
+      { l: 'Retiradas', v: R.K7 }, { l: 'Provisões', v: R.K8 }, { l: 'Saldo sem juros', v: R.K9, total: true },
+      { l: 'Juros', v: R.K10 }, { l: 'Saldo com juros', v: R.K11, total: true }
+    ];
+    var run = 0, pts = [];
+    steps.forEach(function(s){ if (s.total) { pts.push({ a: 0, b: s.v, s: s }); run = s.v; } else { pts.push({ a: run, b: run + s.v, s: s }); run += s.v; } });
+    var vals = [0]; pts.forEach(function(p){ vals.push(p.a, p.b); });
+    var ticks = niceTicks(Math.min.apply(null, vals), Math.max.apply(null, vals), 6);
+    var W = 1100, Hh = 360, ml = 78, mr = 10, mt = 26, mb = 46;
+    var y0 = ticks[0], y1 = ticks[ticks.length - 1];
+    function Y(v){ return mt + (1 - (v - y0) / (y1 - y0)) * (Hh - mt - mb); }
+    var svg = sv('svg', { viewBox: '0 0 ' + W + ' ' + Hh, role: 'img', 'aria-label': 'Cascata do resumo' });
+    var g = sv('g', { 'class': 'grid' }), ax = sv('g', { 'class': 'axis' });
+    ticks.forEach(function(t){ g.appendChild(sv('line', { x1: ml, x2: W - mr, y1: Y(t), y2: Y(t), 'class': Math.abs(t) < 1e-9 ? 'zero' : '' })); ax.appendChild(sv('text', { x: ml - 8, y: Y(t) + 4, 'text-anchor': 'end' }, fmtMi(t))); });
+    svg.appendChild(g); svg.appendChild(ax);
+    var bw = (W - ml - mr) / pts.length;
+    pts.forEach(function(p, i){
+      var x = ml + i * bw + bw * 0.18, w = bw * 0.64;
+      var top = Y(Math.max(p.a, p.b)), h = Math.max(1, Math.abs(Y(p.a) - Y(p.b)));
+      var color = p.s.total ? (p.b >= 0 ? cssVar('--good') : cssVar('--critical')) : (p.s.v >= 0 ? cssVar('--good') : cssVar('--critical'));
+      var rect = sv('rect', { x: x, y: top, width: w, height: h, rx: 3, fill: color, opacity: p.s.total ? 1 : 0.78 });
+      svg.appendChild(rect);
+      if (i < pts.length - 1) svg.appendChild(sv('line', { x1: x + w, x2: x + bw, y1: Y(p.b), y2: Y(p.b), stroke: cssVar('--line-strong'), 'stroke-dasharray': '3 3' }));
+      svg.appendChild(sv('text', { x: x + w / 2, y: top - 7, 'text-anchor': 'middle', 'class': 'lbl' + (p.s.total ? ' strong' : '') }, fmtMi(p.s.v)));
+      svg.appendChild(sv('text', { x: x + w / 2, y: Hh - 24, 'text-anchor': 'middle', 'class': 'lbl' + (p.s.total ? ' strong' : '') }, p.s.l));
+      rect.addEventListener('mousemove', function(e){ showTip(e.clientX, e.clientY, '<div class="t-val">' + fmtBRL(p.s.v) + '</div><div class="t-key">' + esc(p.s.l) + '</div>'); });
+      rect.addEventListener('mouseleave', hideTip);
+    });
+    box.appendChild(svg);
+  })();
+
+  // ---------------- 9. simulador ----------------
+  var base = parametrosDaPlanilha(D);
+  var sim = JSON.parse(JSON.stringify(base));
+  var conf = simular(D, base);
+  var maxDiff = KEYS.reduce(function(m, k){ return Math.max(m, Math.abs(conf.res[k] - R[k])); }, 0);
+  var chk = document.getElementById('s-check');
+  if (maxDiff <= 0.01) { chk.className = 'check'; chk.textContent = 'Conferido: com os valores da planilha, o simulador reproduz o resumo K4–K11 (diferença máxima ' + fmtBRL(maxDiff) + ').'; }
+  else { chk.className = 'check bad'; chk.textContent = 'Atenção: com os valores da planilha, o simulador difere do resumo em até ' + fmtBRL(maxDiff) + '. A planilha pode ter mudado de estrutura; confira antes de usar a simulação.'; }
+
+  var sJuros = document.getElementById('s-juros'), sCorte = document.getElementById('s-corte');
+  sJuros.value = (base.juros * 100).toFixed(2);
+  for (var mi = cut; mi >= 0; mi--) { if (mi < first) break; var o = el('option', null, fmtMes(D.meses[mi])); o.value = mi; sCorte.appendChild(o); }
+  sCorte.value = String(cut);
+  var togDefs = [['adm', 'Adm. central'], ['retirada', 'Retiradas'], ['provisoes', 'Provisões'], ['antigas', 'Obras antigas'], ['c029', 'Custo 029'], ['usina', 'Usina Caçapava'], ['matriz', 'Matriz']];
+  var togBox = document.getElementById('s-toggles');
+  togDefs.forEach(function(t){
+    var lab = el('label', 'chip-toggle'), cb = el('input'); cb.type = 'checkbox'; cb.checked = true; cb.dataset.k = t[0];
+    cb.addEventListener('change', function(){ sim.liga[t[0]] = cb.checked; runSim(); });
+    lab.appendChild(cb); lab.appendChild(document.createTextNode(' ' + t[1])); togBox.appendChild(lab);
+  });
+  var linesBody = document.getElementById('s-lines');
+  var lineInputs = [];
+  D.linhas.forEach(function(l){
+    var tr = el('tr'); tr.dataset.linha = l.linha;
+    tr.appendChild(el('td', null, nomeLinha(l)));
+    function inp(kind, value, editable){
+      var td = el('td', 'num');
+      if (!editable) { td.textContent = kind === 'E' && l.tipo === 'retirada' ? '–' : fmtPct(value); return td; }
+      var x = el('input'); x.type = 'number'; x.step = kind === 'E' && l.tipo === 'adm' ? '0.01' : '1'; x.min = '0'; x.max = '100';
+      x.value = +(value * 100).toFixed(4); x.dataset.k = kind; x.dataset.linha = l.linha; x.dataset.base = x.value;
+      x.setAttribute('aria-label', (kind === 'E' ? (l.tipo === 'adm' ? 'Taxa' : '% Tríade') : '% Enpavi') + ' – ' + nomeLinha(l));
+      x.addEventListener('input', function(){
+        var v = parseFloat(String(x.value).replace(',', '.'));
+        if (isNaN(v)) return;
+        sim[kind][l.linha] = v / 100;
+        x.classList.toggle('changed', String(x.value) !== x.dataset.base);
+        runSim();
+      });
+      lineInputs.push(x); td.appendChild(x); return td;
+    }
+    tr.appendChild(inp('E', l.E, l.tipo !== 'retirada'));
+    tr.appendChild(inp('F', l.F, true));
+    var tdj = el('td', 'num tabular'); tdj.id = 's-j-' + l.linha; tr.appendChild(tdj);
+    linesBody.appendChild(tr);
+  });
+  sJuros.addEventListener('input', function(){ var v = parseFloat(String(sJuros.value).replace(',', '.')); if (isNaN(v)) return; sim.juros = v / 100; sJuros.classList.toggle('changed', Math.abs(sim.juros - base.juros) > 1e-12); runSim(); });
+  sCorte.addEventListener('change', function(){ sim.corteIdx = +sCorte.value; sCorte.classList.toggle('changed', sim.corteIdx !== cut); runSim(); });
+  document.getElementById('s-reset').addEventListener('click', function(){
+    sim = JSON.parse(JSON.stringify(base));
+    sJuros.value = (base.juros * 100).toFixed(2); sJuros.classList.remove('changed');
+    sCorte.value = String(cut); sCorte.classList.remove('changed');
+    lineInputs.forEach(function(x){ x.value = x.dataset.base; x.classList.remove('changed'); });
+    togBox.querySelectorAll('input').forEach(function(cb){ cb.checked = true; });
+    runSim();
+  });
+  var resLabels = { K4: 'Parte Enpavi obras, usina, matriz e adm.', K5: 'Custo 029', K6: 'Obras antigas', K7: 'Retiradas', K8: 'Provisões', K9: 'Saldo sem juros', K10: 'Juros', K11: 'Saldo com juros' };
+  function runSim(){
+    var s = simular(D, sim);
+    var body = document.getElementById('s-res'); body.innerHTML = '';
+    KEYS.forEach(function(k){
+      var tr = el('tr', k === 'K11' ? 'total' : (k === 'K9' ? 'sub' : ''));
+      tr.appendChild(el('td', null, resLabels[k]));
+      tr.appendChild(el('td', 'num tabular ' + sgn(R[k]), fmtBRL(R[k])));
+      tr.appendChild(el('td', 'num tabular ' + sgn(s.res[k]), fmtBRL(s.res[k])));
+      var d = s.res[k] - R[k];
+      tr.appendChild(el('td', 'num tabular ' + sgn(d), Math.abs(d) < 0.005 ? '—' : (d > 0 ? '+' : '') + fmtBRL(d)));
+      body.appendChild(tr);
+    });
+    D.linhas.forEach(function(l){
+      var d = s.detalhe[l.linha], td = document.getElementById('s-j-' + l.linha);
+      td.textContent = fmtBRL(d.J); td.className = 'num tabular ' + sgn(d.J);
+      td.parentNode.classList.toggle('off', !d.on);
+    });
+    var ss = [
+      { name: 'Planilha – saldo com juros', color: cssVar('--muted') || '#8d8574', values: EN.AN, dash: '6 4' },
+      { name: 'Simulação – saldo com juros', color: cssVar('--accent') || '#b5661a', values: s.AN, width: 3 }
+    ];
+    legend(document.getElementById('s-legend'), ss);
+    lineChart(document.getElementById('s-chart'), first, Math.max(cut, sim.corteIdx), ss, { w: 620, h: 300 });
+  }
+  runSim();
+
+  // ---------------- índice: marca a seção visível ----------------
+  var links = Array.prototype.slice.call(document.querySelectorAll('#toc a'));
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function(ents){
+      ents.forEach(function(e){ if (e.isIntersecting) { links.forEach(function(a){ a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id); }); } });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    document.querySelectorAll('section[id]').forEach(function(s){ io.observe(s); });
+  }
+})();
+
+</script>
+</body>
+</html>

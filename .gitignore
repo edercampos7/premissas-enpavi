@@ -1,0 +1,7 @@
+*.xlsx
+*.xlsm
+*.XLSX
+~$*
+scripts/log.txt
+scripts/log.txt.old
+scripts/estado.txt
