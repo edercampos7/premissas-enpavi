@@ -409,6 +409,17 @@
     .kpis.month-kpis .kpi .value{ font-size:15px; }
     .kpis.month-kpis .kpi .note{ font-size:11px; }
   }
+
+  .part-bar{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
+  .part-bar .chips{ margin-bottom:0; }
+  #part-toggle{ white-space:nowrap; }
+  #part-table tr.grp-row td{ background: var(--surface-2); font-weight:600; border-top:1px solid var(--line-strong); }
+  #part-table .grp-btn{ all:unset; cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-family:"IBM Plex Sans",sans-serif; font-size:13px; font-weight:600; color: var(--ink); }
+  #part-table .grp-btn:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; border-radius:4px; }
+  #part-table .grp-btn .swatch{ display:inline-block; width:10px; height:10px; border-radius:2px; }
+  #part-table .grp-seta{ display:inline-block; width:12px; color: var(--muted); }
+  #part-table .grp-n{ font-weight:400; color: var(--muted); font-size:12px; }
+  #part-table tr.item-row td.code{ padding-left:28px; }
 </style>
 </head>
 <body>
@@ -437,10 +448,8 @@
     <a href="#sec-outros">Usina, 029, matriz e antigas</a>
     <a href="#sec-retiradas">Retiradas</a>
     <a href="#sec-mensal">Mês a mês</a>
-    <a href="#sec-cascata">Do resultado ao saldo</a>
     <a href="#sec-simulador">Simulador</a>
     <a href="#sec-aberto">Pontos em aberto</a>
-    <a href="#sec-glossario">Glossário</a>
   </nav>
 
   <section id="sec-resumo">
@@ -462,8 +471,8 @@
 
   <section id="sec-participacoes">
     <div class="section-head"><h2><span class="num">3</span>Participações por obra e fluxo</h2><div class="desc">Item 1 da PREMISSAS ENPAVI, na data de corte</div></div>
-    <p class="lead">Cada linha mostra o <b>resultado 100%</b> do fluxo até a data de corte, o percentual da Tríade, o percentual da Enpavi sobre a parte da Tríade e quanto fica para a Enpavi. Clique nos grupos para filtrar.</p>
-    <div class="chips" id="grp-chips"></div>
+    <p class="lead">Cada linha mostra o <b>resultado 100%</b> do fluxo até a data de corte, o percentual da Tríade, o percentual da Enpavi sobre a parte da Tríade e quanto fica para a Enpavi. As linhas estão agrupadas: clique no nome do grupo para recolher ou mostrar as obras dele, ou use o botão para recolher todas. Os botões coloridos filtram um grupo.</p>
+    <div class="part-bar"><div class="chips" id="grp-chips"></div><button type="button" class="btn ghost" id="part-toggle" aria-controls="part-table">Recolher as obras</button></div>
     <div class="table-wrap">
       <table id="part-table">
         <thead><tr>
@@ -524,13 +533,8 @@
     </div>
   </section>
 
-  <section id="sec-cascata">
-    <div class="section-head"><h2><span class="num">8</span>Do resultado ao saldo final</h2><div class="desc">Composição do resumo K4 → K11 da PREMISSAS ENPAVI</div></div>
-    <div class="card"><div class="chart" id="waterfall"></div></div>
-  </section>
-
   <section id="sec-simulador">
-    <div class="section-head"><h2><span class="num">9</span>Simulador</h2><div class="desc">Mude premissas e veja o efeito no saldo — a planilha não é alterada</div></div>
+    <div class="section-head"><h2><span class="num">8</span>Simulador</h2><div class="desc">Mude premissas e veja o efeito no saldo — a planilha não é alterada</div></div>
     <p class="lead">O simulador refaz o encontro de contas mês a mês, com a mesma lógica da aba ENCONTRO ENPAVI. Altere os percentuais, a taxa de juros, o mês de corte ou desligue blocos para ver o impacto.</p>
     <div class="sim">
       <div>
@@ -561,7 +565,7 @@
   </section>
 
   <section id="sec-aberto">
-    <div class="section-head"><h2><span class="num">10</span>Pontos em aberto</h2><div class="desc">Itens a confirmar antes de fechar a distribuição</div></div>
+    <div class="section-head"><h2><span class="num">9</span>Pontos em aberto</h2><div class="desc">Itens a confirmar antes de fechar a distribuição</div></div>
     <div class="card">
       <ul class="open-list">
         <li id="aberto-ret"><b>Retiradas Enpavi:</b> definir se os pagamentos dos caixas à Enpavi, Usinas SP e ESO entram no encontro, e com qual percentual (eles já são despesa nos caixas das obras).</li>
@@ -571,23 +575,6 @@
         <li><b>Obras antigas:</b> hoje entram 100% da diferença Enpavi × DP Barros.</li>
         <li><b>Matriz:</b> ISS do DT PR (R$ 1,26 mi desde 10/2022) e IRPJ/CSLL de 2026 não aparecem na CUSTO MATRIZ.</li>
       </ul>
-    </div>
-  </section>
-
-  <section id="sec-glossario">
-    <div class="section-head"><h2><span class="num">11</span>Glossário</h2></div>
-    <div class="card">
-      <dl class="gloss">
-        <dt>SCP</dt><dd>Sociedade em Conta de Participação entre a Tríade e a Enpavi. A Tríade executa as obras e divide o resultado com a Enpavi conforme os percentuais das premissas.</dd>
-        <dt>Resultado 100%</dt><dd>Entradas menos saídas do caixa da obra, pagas entre a data de início e a data de corte, só com lançamentos considerados.</dd>
-        <dt>% Tríade na obra</dt><dd>Participação da Tríade no contrato. É 100% nas obras próprias e pode ser menor nos consórcios.</dd>
-        <dt>% Enpavi sobre a parte da Tríade</dt><dd>Fatia da Enpavi dentro da parte da Tríade. O padrão é 50%.</dd>
-        <dt>% efetivo</dt><dd>% Tríade × % Enpavi sobre a parte da Tríade. É o percentual do resultado 100% que fica com a Enpavi.</dd>
-        <dt>Data de corte</dt><dd>Último mês considerado no encontro de contas. Lançamentos pagos depois dela ficam de fora.</dd>
-        <dt>Juros simples</dt><dd>Todo mês, o saldo sem juros daquele mês × a taxa mensal. Os juros vão se somando, mas não entram na base dos meses seguintes.</dd>
-        <dt>S/N (considerar)</dt><dd>Coluna dos caixas: N tira o lançamento do resultado; vazio ou S considera.</dd>
-        <dt>Saldo positivo / negativo</dt><dd>Positivo = a favor da Enpavi (a Tríade deve à Enpavi). Negativo = a favor da Tríade (a Enpavi deve à Tríade).</dd>
-      </dl>
     </div>
   </section>
 
@@ -851,28 +838,63 @@ function parametrosDaPlanilha(D){
     mkChip('Todos', null, D.linhas.length);
     tiposPresentes.forEach(function(t){ mkChip((GRUPOS[t] || GRUPOS.outro).nome, t, D.linhas.filter(function(l){ return l.tipo === t; }).length); });
   }
+  var fechados = {};
+  var btnObras = document.getElementById('part-toggle');
+  function todosFechados(){ return tiposPresentes.filter(function(t){ return !filtro || t === filtro; }).every(function(t){ return fechados[t]; }); }
+  function atualizaBotao(){
+    var f = todosFechados();
+    btnObras.textContent = f ? 'Mostrar as obras' : 'Recolher as obras';
+    btnObras.setAttribute('aria-expanded', String(!f));
+  }
+  btnObras.addEventListener('click', function(){
+    var fechar = !todosFechados();
+    tiposPresentes.forEach(function(t){ fechados[t] = fechar; });
+    renderPart();
+  });
   function renderPart(){
     var body = document.getElementById('part-body'); body.innerHTML = '';
     var sh = 0, si = 0, sj = 0;
-    D.linhas.forEach(function(l){
-      if (filtro && l.tipo !== filtro) return;
-      var tr = el('tr');
-      var g = GRUPOS[l.tipo] || GRUPOS.outro, tdc = el('td', 'code'), s = el('span', 'swatch'); s.style.background = g.cor; s.title = g.nome;
-      tdc.appendChild(s); tdc.appendChild(document.createTextNode(l.tipo === 'adm' ? 'ADM. CENTRAL' : l.codigo)); tdc.title = g.nome; tr.appendChild(tdc);
-      tr.appendChild(el('td', null, l.tipo === 'adm' ? 'Obras ' + String(l.descricao || '').replace(/^OBRAS\s+/i, '') : l.descricao));
-      tr.appendChild(el('td', 'num tabular', l.tipo === 'adm' ? 'taxa ' + fmtPct(l.E) : fmtPct(l.E)));
-      tr.appendChild(el('td', 'num tabular', fmtPct(l.F)));
-      tr.appendChild(el('td', 'num tabular', fmtPct(l.G)));
-      tr.appendChild(el('td', 'num tabular ' + sgn(l.H), fmtBRL(l.H)));
-      tr.appendChild(el('td', 'num tabular', l.Ivazio ? '–' : fmtBRL(l.I)));
-      tr.appendChild(el('td', 'num tabular ' + sgn(l.J), fmtBRL(l.J)));
-      body.appendChild(tr);
-      sh += l.H; if (!l.Ivazio) si += l.I; sj += l.J;
+    tiposPresentes.forEach(function(t){
+      if (filtro && t !== filtro) return;
+      var ls = D.linhas.filter(function(l){ return l.tipo === t; });
+      var g = GRUPOS[t] || GRUPOS.outro;
+      var gh = 0, gi = 0, gj = 0, temI = false;
+      ls.forEach(function(l){ gh += l.H; if (!l.Ivazio) { gi += l.I; temI = true; } gj += l.J; });
+      var aberto = !fechados[t];
+      var hr = el('tr', 'grp-row');
+      var td0 = el('td'); td0.colSpan = 5;
+      var bt = el('button', 'grp-btn'); bt.type = 'button'; bt.setAttribute('aria-expanded', String(aberto));
+      bt.title = aberto ? 'Recolher ' + g.nome : 'Mostrar ' + g.nome;
+      bt.appendChild(el('span', 'grp-seta', aberto ? '▾' : '▸'));
+      var sw = el('span', 'swatch'); sw.style.background = g.cor; bt.appendChild(sw);
+      bt.appendChild(document.createTextNode(g.nome));
+      bt.appendChild(el('span', 'grp-n', ls.length + (ls.length === 1 ? ' linha' : ' linhas')));
+      bt.addEventListener('click', function(){ fechados[t] = aberto; renderPart(); });
+      td0.appendChild(bt); hr.appendChild(td0);
+      hr.appendChild(el('td', 'num tabular ' + sgn(gh), fmtBRL(gh)));
+      hr.appendChild(el('td', 'num tabular', temI ? fmtBRL(gi) : '–'));
+      hr.appendChild(el('td', 'num tabular ' + sgn(gj), fmtBRL(gj)));
+      body.appendChild(hr);
+      if (aberto) ls.forEach(function(l){
+        var tr = el('tr', 'item-row');
+        var tdc = el('td', 'code'), s = el('span', 'swatch'); s.style.background = g.cor; s.title = g.nome;
+        tdc.appendChild(s); tdc.appendChild(document.createTextNode(l.tipo === 'adm' ? 'ADM. CENTRAL' : l.codigo)); tdc.title = g.nome; tr.appendChild(tdc);
+        tr.appendChild(el('td', null, l.tipo === 'adm' ? 'Obras ' + String(l.descricao || '').replace(/^OBRAS\s+/i, '') : l.descricao));
+        tr.appendChild(el('td', 'num tabular', l.tipo === 'adm' ? 'taxa ' + fmtPct(l.E) : fmtPct(l.E)));
+        tr.appendChild(el('td', 'num tabular', fmtPct(l.F)));
+        tr.appendChild(el('td', 'num tabular', fmtPct(l.G)));
+        tr.appendChild(el('td', 'num tabular ' + sgn(l.H), fmtBRL(l.H)));
+        tr.appendChild(el('td', 'num tabular', l.Ivazio ? '–' : fmtBRL(l.I)));
+        tr.appendChild(el('td', 'num tabular ' + sgn(l.J), fmtBRL(l.J)));
+        body.appendChild(tr);
+      });
+      sh += gh; si += gi; sj += gj;
     });
     document.getElementById('part-foot-l').textContent = filtro ? 'Total – ' + (GRUPOS[filtro] || GRUPOS.outro).nome : 'Total (linha TOTAL da PREMISSAS)';
     document.getElementById('part-foot-h').textContent = filtro ? fmtBRL(sh) : '';
     document.getElementById('part-foot-i').textContent = fmtBRL(filtro ? si : D.total1.I);
     document.getElementById('part-foot-j').textContent = fmtBRL(filtro ? sj : D.total1.J);
+    atualizaBotao();
   }
   renderChips(); renderPart();
 
@@ -1136,42 +1158,7 @@ function parametrosDaPlanilha(D){
     mostrar(cut, false);
   })();
 
-  // ---------------- 8. cascata ----------------
-  (function(){
-    var box = document.getElementById('waterfall');
-    var steps = [
-      { l: 'Participação Enpavi', v: R.K4 }, { l: 'Despesas Enpavi 029', v: R.K5 }, { l: 'Obras antigas', v: R.K6 },
-      { l: 'Retiradas', v: R.K7 }, { l: 'Provisões', v: R.K8 }, { l: 'Saldo sem juros', v: R.K9, total: true },
-      { l: 'Juros', v: R.K10 }, { l: 'Saldo com juros', v: R.K11, total: true }
-    ];
-    var run = 0, pts = [];
-    steps.forEach(function(s){ if (s.total) { pts.push({ a: 0, b: s.v, s: s }); run = s.v; } else { pts.push({ a: run, b: run + s.v, s: s }); run += s.v; } });
-    var vals = [0]; pts.forEach(function(p){ vals.push(p.a, p.b); });
-    var ticks = niceTicks(Math.min.apply(null, vals), Math.max.apply(null, vals), 6);
-    var W = 1100, Hh = 360, ml = 78, mr = 10, mt = 26, mb = 46;
-    var y0 = ticks[0], y1 = ticks[ticks.length - 1];
-    function Y(v){ return mt + (1 - (v - y0) / (y1 - y0)) * (Hh - mt - mb); }
-    var svg = sv('svg', { viewBox: '0 0 ' + W + ' ' + Hh, role: 'img', 'aria-label': 'Cascata do resumo' });
-    var g = sv('g', { 'class': 'grid' }), ax = sv('g', { 'class': 'axis' });
-    ticks.forEach(function(t){ g.appendChild(sv('line', { x1: ml, x2: W - mr, y1: Y(t), y2: Y(t), 'class': Math.abs(t) < 1e-9 ? 'zero' : '' })); ax.appendChild(sv('text', { x: ml - 8, y: Y(t) + 4, 'text-anchor': 'end' }, fmtMi(t))); });
-    svg.appendChild(g); svg.appendChild(ax);
-    var bw = (W - ml - mr) / pts.length;
-    pts.forEach(function(p, i){
-      var x = ml + i * bw + bw * 0.18, w = bw * 0.64;
-      var top = Y(Math.max(p.a, p.b)), h = Math.max(1, Math.abs(Y(p.a) - Y(p.b)));
-      var color = p.s.total ? (p.b >= 0 ? cssVar('--good') : cssVar('--critical')) : (p.s.v >= 0 ? cssVar('--good') : cssVar('--critical'));
-      var rect = sv('rect', { x: x, y: top, width: w, height: h, rx: 3, fill: color, opacity: p.s.total ? 1 : 0.78 });
-      svg.appendChild(rect);
-      if (i < pts.length - 1) svg.appendChild(sv('line', { x1: x + w, x2: x + bw, y1: Y(p.b), y2: Y(p.b), stroke: cssVar('--line-strong'), 'stroke-dasharray': '3 3' }));
-      svg.appendChild(sv('text', { x: x + w / 2, y: top - 7, 'text-anchor': 'middle', 'class': 'lbl' + (p.s.total ? ' strong' : '') }, fmtMi(p.s.v)));
-      svg.appendChild(sv('text', { x: x + w / 2, y: Hh - 24, 'text-anchor': 'middle', 'class': 'lbl' + (p.s.total ? ' strong' : '') }, p.s.l));
-      rect.addEventListener('mousemove', function(e){ showTip(e.clientX, e.clientY, '<div class="t-val">' + fmtBRL(p.s.v) + '</div><div class="t-key">' + esc(p.s.l) + '</div>'); });
-      rect.addEventListener('mouseleave', hideTip);
-    });
-    box.appendChild(svg);
-  })();
-
-  // ---------------- 9. simulador ----------------
+  // ---------------- 8. simulador ----------------
   var base = parametrosDaPlanilha(D);
   var sim = JSON.parse(JSON.stringify(base));
   var conf = simular(D, base);
