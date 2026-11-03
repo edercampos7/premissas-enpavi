@@ -216,6 +216,10 @@ foreach ($col in $encCols.Keys) {
     if (-not $h.StartsWith($encCols[$col])) { throw "ENCONTRO ENPAVI!${col}7 deveria ser '$($encCols[$col])...' e está '$h'. A estrutura da aba mudou." }
     $enc[$col] = Series $col
 }
+# retiradas mensais da Enpavi digitadas na coluna AO (valor do mês), se existir
+$retMes = $null
+$hAO = Norm (CV $E 'AO7')
+if ($hAO.StartsWith('RETIRADAS ENPAVI NO M')) { $retMes = Series 'AO' }
 # adm. central: 'mensal' (coluna AA com SUMIFS dos caixas, receita acumulada até cada mês) ou 'corte' (valor único no mês de corte)
 $admModo = 'corte'
 $fAA = CF $E ('AA' + $mesRows[$cutIdx])
@@ -353,6 +357,7 @@ $site = [ordered]@{
     meses = $meses
     corteIdx = $cutIdx
     admModo = $admModo
+    retiradasMes = $retMes
     fluxos = $flowOut
     encontro = $enc
     receitaObras = $receitaObras
