@@ -425,6 +425,11 @@
   .kpis.month-kpis .kpi.span2{ grid-column: span 2; }
   @media (max-width: 900px){ .kpis.month-kpis.cinco{ grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 460px){ .kpis.month-kpis.cinco{ grid-template-columns: 1fr 1fr; } }
+
+  .kpis.cinco{ grid-template-columns: repeat(5, 1fr); }
+  .kpis .kpi.span2{ grid-column: span 2; }
+  @media (max-width: 900px){ .kpis.cinco{ grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 460px){ .kpis.cinco:not(.month-kpis){ grid-template-columns: 1fr; } .kpis:not(.month-kpis) .kpi.span2{ grid-column: auto; } }
 </style>
 </head>
 <body>
@@ -530,7 +535,7 @@
       <table class="compact">
         <thead><tr>
           <th class="static">Mês</th><th class="static num">Participação Enpavi</th><th class="static num">Despesas Enpavi 029</th><th class="static num">Obras antigas</th>
-          <th class="static num" id="th-ret">Retiradas</th><th class="static num">Provisões</th><th class="static num">Saldo sem juros</th><th class="static num">Juros do mês</th>
+          <th class="static num" id="th-ret">Retiradas</th><th class="static num" id="th-pag">Pag. empresas</th><th class="static num">Provisões</th><th class="static num">Saldo sem juros</th><th class="static num">Juros do mês</th>
           <th class="static num">Juros acumulados</th><th class="static num">Saldo com juros</th>
         </tr></thead>
         <tbody id="month-body"></tbody>
@@ -595,14 +600,14 @@
 <script>
 /*SIM-START*/
 // Refaz o encontro de contas mês a mês com a mesma lógica da aba ENCONTRO ENPAVI.
-// p = { E:{linha:valor}, F:{linha:valor}, juros, corteIdx, liga:{matriz,usina,c029,antigas,adm,retirada,provisoes} }
+// p = { E:{linha:valor}, F:{linha:valor}, juros, corteIdx, liga:{matriz,usina,c029,antigas,adm,retirada,provisoes,pagamentos} }
 function grupoLiga(tipo){
   return ({ matriz:'matriz', usina:'usina', c029:'c029', antiga:'antigas', adm:'adm', retirada:'retirada' })[tipo] || 'obras';
 }
 function simular(D, p){
   var n = D.meses.length, c = p.corteIdx, i, m;
   function zeros(){ var a = new Array(n); for (var k = 0; k < n; k++) a[k] = 0; return a; }
-  var AD = zeros(), AE = zeros(), AF = zeros(), AH = zeros(), AI = zeros(), AJ = zeros(), AL = zeros(), AM = zeros(), AN = zeros();
+  var AD = zeros(), AE = zeros(), AF = zeros(), AH = zeros(), AI = zeros(), AP = zeros(), AJ = zeros(), AL = zeros(), AM = zeros(), AN = zeros();
   var startKey = (D.params.inicio || D.meses[0]).slice(0, 7);
   var cutKey = D.meses[c].slice(0, 7);
   var porLinha = {};
@@ -668,14 +673,19 @@ function simular(D, p){
     detalhe[l.linha] = d;
   });
   if (p.liga.provisoes !== false) AI[c] = D.provisoes.totalEnpavi;
+  // pagamentos às empresas Enpavi, Usinas SP e ESO (aba RECEITAS): valor único no mês de corte (coluna AR da ENCONTRO)
+  var temKP = D.resumo && typeof D.resumo.KP === 'number';
+  if (temKP && p.liga.pagamentos !== false) AP[c] = D.resumo.KP;
   var AG = D.encontro.AG, acc = 0;
   for (m = 0; m <= c; m++) {
-    AJ[m] = AD[m] + AE[m] + AF[m] + (AG[m] || 0) + AH[m] + AI[m];
+    AJ[m] = AD[m] + AE[m] + AF[m] + (AG[m] || 0) + AH[m] + AI[m] + AP[m];
     AL[m] = D.meses[m].slice(0, 7) >= startKey ? AJ[m] * p.juros : 0;
     acc += AL[m]; AM[m] = acc; AN[m] = AJ[m] + AM[m];
   }
+  var res = { K4: AD[c], K5: AE[c], K6: AF[c], K7: (AG[c] || 0) + AH[c], K8: AI[c], K9: AJ[c], K10: AM[c], K11: AN[c] };
+  if (temKP) res.KP = AP[c];
   return {
-    res: { K4: AD[c], K5: AE[c], K6: AF[c], K7: (AG[c] || 0) + AH[c], K8: AI[c], K9: AJ[c], K10: AM[c], K11: AN[c] },
+    res: res,
     AJ: AJ, AM: AM, AN: AN, detalhe: detalhe
   };
 }
@@ -691,14 +701,16 @@ function desembrulhar(x){
 }
 function parametrosDaPlanilha(D){
   return { E: {}, F: {}, juros: D.params.juros, corteIdx: D.corteIdx,
-           liga: { matriz: true, usina: true, c029: true, antigas: true, adm: true, retirada: true, provisoes: true } };
+           liga: { matriz: true, usina: true, c029: true, antigas: true, adm: true, retirada: true, provisoes: true, pagamentos: true } };
 }
 /*SIM-END*/
 
 (function(){
   "use strict";
   var D = desembrulhar(JSON.parse(document.getElementById('site-data').textContent));
-  var KEYS = ['K4','K5','K6','K7','K8','K9','K10','K11'];
+  var TEM_PAG = typeof (D.resumo || {}).KP === 'number';
+  var KEYS = ['K4','K5','K6','K7'].concat(TEM_PAG ? ['KP'] : []).concat(['K8','K9','K10','K11']);
+  function celula(k){ return ((D.resumo || {}).celulas || {})[k] || k; }
 
   // ---------------- formatação ----------------
   var nf2 = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -769,21 +781,25 @@ function parametrosDaPlanilha(D){
     { k: 'K5', t: 'Despesas Enpavi 029' },
     { k: 'K6', t: 'Obras antigas (Enpavi × DP)' },
     { k: 'K7', t: 'Retiradas / adiantamentos' },
+    TEM_PAG ? { k: 'KP', t: 'Pagamentos às empresas Enpavi, Usinas SP e ESO' } : null,
     { k: 'K8', t: 'Provisões na data de corte' },
     { k: 'K9', t: 'Saldo sem juros' },
     { k: 'K10', t: 'Juros acumulados' },
     { k: 'K11', t: 'Saldo com juros' }
   ];
+  kpiDefs = kpiDefs.filter(function(d){ return d; });
   var kpiRow = document.getElementById('kpi-row');
-  kpiDefs.forEach(function(d){
+  kpiRow.classList.toggle('cinco', kpiDefs.length === 9);
+  kpiDefs.forEach(function(d, idx){
     var v = R[d.k], box = el('div', 'kpi');
     var lab = el('div', 'label');
     if (d.k === 'K11' || d.k === 'K9') box.className = 'kpi hl';
+    if (kpiDefs.length === 9 && idx === 8) box.className += ' span2';
     var ic = el('span', 'icon ' + (v > 0.005 ? 'good' : (v < -0.005 ? 'critical' : ''))); ic.innerHTML = d.k === 'K11' ? ICONS.scale : (v >= -0.005 ? ICONS.up : ICONS.down);
     lab.appendChild(ic); lab.appendChild(document.createTextNode(d.t));
     box.appendChild(lab);
     box.appendChild(el('div', 'value tabular ' + (v < -0.005 ? 'critical' : (v > 0.005 ? 'good' : '')), fmtBRL(v)));
-    box.appendChild(el('div', 'note', 'Célula ' + d.k + ' da PREMISSAS'));
+    box.appendChild(el('div', 'note', 'Célula ' + celula(d.k) + ' da PREMISSAS'));
     kpiRow.appendChild(box);
   });
   var verdict = document.getElementById('verdict');
@@ -822,14 +838,21 @@ function parametrosDaPlanilha(D){
     { t: 'Ajustes', p: RET_MENSAL
         ? (ADM_MENSAL ? 'Administração central mês a mês, sobre a receita acumulada das obras. Retiradas da Enpavi no mês em que aconteceram e provisões (retenções e IR a pagar) na data de corte.' : 'Retiradas da Enpavi no mês em que aconteceram; administração central sobre a receita das obras e provisões (retenções e IR a pagar) na data de corte.')
         : (ADM_MENSAL ? 'Administração central mês a mês, sobre a receita acumulada das obras. Retiradas já recebidas e provisões (retenções e IR a pagar) entram na data de corte.' : 'Administração central sobre a receita das obras, retiradas já recebidas e provisões (retenções e IR a pagar) na data de corte.') },
+    TEM_PAG ? { t: 'Pagamentos às empresas', p: 'Os pagamentos dos caixas às empresas Enpavi, Usinas SP e ESO marcados na aba RECEITAS entram num item próprio, 100% contra a Enpavi, na data de corte.' } : null,
     { t: 'Juros', p: 'Sobre o saldo de cada mês corre juros simples de ' + fmtPct(D.params.juros, 1) + ' ao mês, da data de início até a data de corte.' }
-  ].forEach(function(s){ var c = el('div', 'item'); c.appendChild(el('div', 'it-t', s.t)); c.appendChild(el('p', null, s.p)); items.appendChild(c); });
+  ].filter(function(s){ return s; }).forEach(function(s){ var c = el('div', 'item'); c.appendChild(el('div', 'it-t', s.t)); c.appendChild(el('p', null, s.p)); items.appendChild(c); });
 
   // ---------------- 2. parâmetros ----------------
   var params = document.getElementById('params');
   [
     { l: 'Data de início', v: fmtDate(D.params.inicio), p: 'Só entram lançamentos pagos a partir do mês desta data, e os juros começam a correr nele.' },
-    { l: 'Data de corte', v: fmtDate(D.params.corte), p: 'Último mês do encontro de contas. ' + (ADM_MENSAL ? (RET_MENSAL ? 'As provisões entram neste mês.' : 'Provisões e retiradas entram neste mês.') : (RET_MENSAL ? 'Provisões e a adm. central entram neste mês.' : 'Provisões, retiradas e a adm. central entram neste mês.')) },
+    { l: 'Data de corte', v: fmtDate(D.params.corte), p: 'Último mês do encontro de contas. ' + (function(){
+      var it = ['Provisões'];
+      if (TEM_PAG) it.push('pagamentos às empresas');
+      if (!RET_MENSAL) it.push('retiradas');
+      if (!ADM_MENSAL) it.push('a adm. central');
+      return (it.length > 1 ? it.slice(0, -1).join(', ') + ' e ' + it[it.length - 1] : it[0]) + ' entram neste mês.';
+    })() },
     { l: 'Juros ao mês', v: fmtPct(D.params.juros, 1), p: 'Taxa fixa, juros simples: juros do mês = saldo sem juros do mês × taxa.' },
     { l: '% Enpavi padrão', v: fmtPct(pad), p: 'Percentual da Enpavi sobre a parte da Tríade, usado nas linhas que não têm percentual próprio.' }
   ].forEach(function(x){
@@ -1002,6 +1025,17 @@ function parametrosDaPlanilha(D){
       if (ms.length <= 4) return 'retiradas em ' + ms.map(function(x){ return fmtMes(D.meses[x[0]]) + ' (' + fmtBRL(Math.abs(x[1])) + ')'; }).join(', ') + tot;
       return 'retiradas em ' + ms.length + ' meses, de ' + ini + ' a ' + fim + tot;
     }
+    function abasPag(){
+      return ((rc && rc.porAba) || []).filter(function(x){ return Math.abs(x.total) > 0.5 && String(x.aba).toUpperCase() !== 'CAÇAPAV'; })
+        .sort(function(x, y){ return y.total - x.total; }).map(function(x){ return x.aba; });
+    }
+    function textoPag(){
+      var kp = R.KP, tot = rc && rc.totalAba ? rc.totalAba.total : Math.abs(kp), fora = tot - Math.abs(kp);
+      var ab = abasPag();
+      return ' Os pagamentos dos caixas às empresas Enpavi, Usinas SP e ESO marcados na aba RECEITAS ENPAVI-USINAS SP-ESO entram num item próprio do resumo, <b>Pagamentos às empresas</b> (<b class="tabular">' + fmtBRL(kp) + '</b>, célula ' + celula('KP') + '), 100% contra a Enpavi, no mês de corte' +
+        (ab.length ? ' (' + ab.join(', ') + ')' : '') + '.' +
+        (fora > 0.5 ? ' Os <b class="tabular">' + fmtBRL(fora) + '</b> da CAÇAPAV marcados na aba RECEITAS ficam de fora desse item, porque já entram nas retiradas.' : '');
+    }
     var usinaS = D.retiradasUsina || null;
     var digS = D.retiradasDigitadas || (usinaS ? null : D.retiradasMes);
     var mDig = mesesDe(digS), mUs = mesesDe(usinaS), meses = mesesDe(D.retiradasMes);
@@ -1014,16 +1048,20 @@ function parametrosDaPlanilha(D){
       txt = 'A linha <b>RETIRADAS ENPAVI</b> da PREMISSAS entra com <b class="tabular">' + fmtBRL(ret.H) + '</b>, ' + fmtPct(ret.G) + ' contra a Enpavi: ' + descMes +
         '. Cada retirada entra no mês em que aconteceu e corre juros desde então.' +
         (Math.abs(resto) > 0.5 ? ' Mais <b class="tabular">' + fmtBRL(resto) + '</b> da aba RECEITAS ' + (ret.data ? 'em ' + fmtMes(ret.data) : 'no mês de corte') + '.' : '');
-      if (rc && rc.totalAba) txt += ' Os pagamentos dos caixas às empresas Enpavi, Usinas SP e ESO (<b class="tabular">' + fmtBRL(rc.totalAba.total) + '</b>, aba RECEITAS ENPAVI-USINAS SP-ESO) ' + (Math.abs(resto) > 0.5 ? 'entram pelo valor acima.' : 'não entram: já são despesa nos caixas das obras.');
+      if (TEM_PAG) txt += textoPag();
+      else if (rc && rc.totalAba) txt += ' Os pagamentos dos caixas às empresas Enpavi, Usinas SP e ESO (<b class="tabular">' + fmtBRL(rc.totalAba.total) + '</b>, aba RECEITAS ENPAVI-USINAS SP-ESO) ' + (Math.abs(resto) > 0.5 ? 'entram pelo valor acima.' : 'não entram: já são despesa nos caixas das obras.');
     } else if (ret) {
       txt = 'A linha <b>RETIRADAS ENPAVI</b> da PREMISSAS ' + (Math.abs(ret.H) > 0.5
         ? 'entra com <b class="tabular">' + fmtBRL(ret.H) + '</b>, ' + fmtPct(ret.G) + ' contra a Enpavi, ' + (ret.data ? 'em ' + fmtMes(ret.data) : 'no mês de corte') + '.'
         : 'está <b>zerada</b> na planilha hoje: os pagamentos abaixo não entram no saldo.');
     }
-    if (!meses.length && rc && rc.totalAba) txt += ' Os caixas das obras pagaram <b class="tabular">' + fmtBRL(rc.totalAba.total) + '</b> às empresas Enpavi, Usinas SP e ESO (aba RECEITAS ENPAVI-USINAS SP-ESO). Esses pagamentos já são despesa nos caixas das obras.';
+    if (!meses.length && TEM_PAG) txt += textoPag();
+    else if (!meses.length && rc && rc.totalAba) txt += ' Os caixas das obras pagaram <b class="tabular">' + fmtBRL(rc.totalAba.total) + '</b> às empresas Enpavi, Usinas SP e ESO (aba RECEITAS ENPAVI-USINAS SP-ESO). Esses pagamentos já são despesa nos caixas das obras.';
     lead.innerHTML = txt;
     var ab = document.getElementById('aberto-ret');
-    if (ab && ret && meses.length) ab.innerHTML = '<b>Retiradas Enpavi:</b> entram ' + fmtPct(ret.G) + ' contra a Enpavi: ' + descMes + '. Os pagamentos dos caixas à Enpavi, Usinas SP e ESO (aba RECEITAS) seguem fora, porque já são despesa nos caixas das obras.';
+    if (ab && ret && meses.length) ab.innerHTML = '<b>Retiradas Enpavi:</b> entram ' + fmtPct(ret.G) + ' contra a Enpavi: ' + descMes + '. ' + (TEM_PAG
+      ? 'Os pagamentos às empresas Enpavi, Usinas SP e ESO da aba RECEITAS (<span class="tabular">' + fmtBRL(R.KP) + '</span>) entram em item próprio. Confirmar se esses lançamentos devem sair dos caixas ' + (abasPag().length ? '(' + abasPag().join(', ') + ') ' : '') + 'onde hoje também são despesa, como foi feito na CAÇAPAV.'
+      : 'Os pagamentos dos caixas à Enpavi, Usinas SP e ESO (aba RECEITAS) seguem fora, porque já são despesa nos caixas das obras.');
     else if (ab && ret) ab.innerHTML = '<b>Retiradas Enpavi:</b> ' + (Math.abs(ret.H) > 0.5
       ? 'a linha entra hoje com <span class="tabular">' + fmtBRL(ret.H) + '</span> (' + fmtPct(ret.G) + ' para a Enpavi). Confirmar o valor e o percentual, já que esses pagamentos também são despesa nos caixas das obras.'
       : 'a linha está na planilha, mas hoje entra com valor zero. Definir se os pagamentos dos caixas à Enpavi, Usinas SP e ESO entram no encontro, e com qual percentual (eles já são despesa nos caixas das obras).');
@@ -1149,6 +1187,7 @@ function parametrosDaPlanilha(D){
       var itens = [];
       if (!ADM_MENSAL) itens.push('a adm. central');
       if (!temMes) itens.push('as retiradas');
+      if (TEM_PAG) itens.push('os pagamentos às empresas');
       itens.push('as provisões');
       var s = (itens.length > 1 ? itens.slice(0, -1).join(', ') + ' e ' + itens[itens.length - 1] : itens[0]) + '.';
       if (ADM_MENSAL) s += ' A adm. central entra mês a mês, sobre a receita acumulada até cada mês.';
@@ -1169,10 +1208,13 @@ function parametrosDaPlanilha(D){
     var RET = []; for (var ir = 0; ir < D.meses.length; ir++) RET[ir] = (EN.AG[ir] || 0) + (EN.AH[ir] || 0);
     var temRet = RET.slice(first, cut + 1).some(function(v){ return Math.abs(v) > 0.005; });
     if (!temRet) { var thr = document.getElementById('th-ret'); if (thr) thr.parentNode.removeChild(thr); }
+    var PAG = EN.AR || [];
+    var temPag = PAG.slice(first, cut + 1).some(function(v){ return Math.abs(v || 0) > 0.005; });
+    if (!temPag) { var thp = document.getElementById('th-pag'); if (thp) thp.parentNode.removeChild(thp); }
     for (var i = cut; i >= first; i--) {
       var tr = el('tr', i === cut ? 'cut' : '');
       tr.appendChild(el('td', 'date', fmtMes(D.meses[i]) + (i === cut ? ' (corte)' : '')));
-      (temRet ? [EN.AD[i], EN.AE[i], EN.AF[i], RET[i], EN.AI[i], EN.AJ[i], EN.AL[i], EN.AM[i], EN.AN[i]] : [EN.AD[i], EN.AE[i], EN.AF[i], EN.AI[i], EN.AJ[i], EN.AL[i], EN.AM[i], EN.AN[i]]).forEach(function(v){ tr.appendChild(el('td', 'num tabular ' + sgn(v), fmtBRL(v))); });
+      [EN.AD[i], EN.AE[i], EN.AF[i]].concat(temRet ? [RET[i]] : []).concat(temPag ? [PAG[i] || 0] : []).concat([EN.AI[i], EN.AJ[i], EN.AL[i], EN.AM[i], EN.AN[i]]).forEach(function(v){ tr.appendChild(el('td', 'num tabular ' + sgn(v), fmtBRL(v))); });
       tr.setAttribute('data-i', i);
       tr.title = 'Ver ' + fmtMes(D.meses[i]);
       body.appendChild(tr);
@@ -1190,14 +1232,16 @@ function parametrosDaPlanilha(D){
         { t: 'Despesas Enpavi 029', v: EN.AE[i], n: 'Acumulado até ' + fmtMes(D.meses[i]) },
         { t: 'Obras antigas', v: EN.AF[i], n: 'Acumulado até ' + fmtMes(D.meses[i]) },
         temRet ? { t: 'Retiradas Enpavi', v: RET[i], n: 'Acumulado até ' + fmtMes(D.meses[i]) } : null,
+        temPag ? { t: 'Pagamentos às empresas', v: PAG[i] || 0, n: i === cut ? 'Entram no mês de corte' : 'Só no mês de corte' } : null,
         { t: 'Provisões', v: EN.AI[i], n: i === cut ? 'Entram no mês de corte' : 'Só no mês de corte' },
         { t: 'Saldo sem juros', v: EN.AJ[i], n: 'Soma do mês', hl: true },
         { t: 'Juros do mês', v: EN.AL[i], n: 'Saldo sem juros × ' + taxa },
         { t: 'Juros acumulados', v: EN.AM[i], n: 'Soma dos juros até o mês' },
-        { t: 'Saldo com juros', v: EN.AN[i], n: (EN.AN[i] < -0.005 ? 'A favor da Tríade' : (EN.AN[i] > 0.005 ? 'A favor da Enpavi' : 'Zerado')), hl: true, span: temRet }
+        { t: 'Saldo com juros', v: EN.AN[i], n: (EN.AN[i] < -0.005 ? 'A favor da Tríade' : (EN.AN[i] > 0.005 ? 'A favor da Enpavi' : 'Zerado')), hl: true }
       ].filter(function(d){ return d; });
+      if (defs.length % 5 === 4) defs[defs.length - 1].span = true;
       cards.innerHTML = '';
-      cards.classList.toggle('cinco', temRet);
+      cards.classList.toggle('cinco', defs.length >= 9);
       defs.forEach(function(d){
         var k = el('div', 'kpi' + (d.hl ? ' hl' : '') + (d.span ? ' span2' : ''));
         k.appendChild(el('div', 'label', d.t));
@@ -1236,7 +1280,7 @@ function parametrosDaPlanilha(D){
   sJuros.value = (base.juros * 100).toFixed(2);
   for (var mi = cut; mi >= 0; mi--) { if (mi < first) break; var o = el('option', null, fmtMes(D.meses[mi])); o.value = mi; sCorte.appendChild(o); }
   sCorte.value = String(cut);
-  var togDefs = [['adm', 'Adm. central'], ['retirada', 'Retiradas'], ['provisoes', 'Provisões'], ['antigas', 'Obras antigas'], ['c029', 'Despesas Enpavi 029'], ['usina', 'Usina Caçapava'], ['matriz', 'Matriz']];
+  var togDefs = [['adm', 'Adm. central'], ['retirada', 'Retiradas']].concat(TEM_PAG ? [['pagamentos', 'Pagamentos às empresas']] : []).concat([['provisoes', 'Provisões'], ['antigas', 'Obras antigas'], ['c029', 'Despesas Enpavi 029'], ['usina', 'Usina Caçapava'], ['matriz', 'Matriz']]);
   var togBox = document.getElementById('s-toggles');
   togDefs.forEach(function(t){
     var lab = el('label', 'chip-toggle'), cb = el('input'); cb.type = 'checkbox'; cb.checked = true; cb.dataset.k = t[0];
@@ -1278,7 +1322,7 @@ function parametrosDaPlanilha(D){
     togBox.querySelectorAll('input').forEach(function(cb){ cb.checked = true; });
     runSim();
   });
-  var resLabels = { K4: 'Participação Enpavi (obras, usina, matriz e adm.)', K5: 'Despesas Enpavi 029', K6: 'Obras antigas', K7: 'Retiradas', K8: 'Provisões', K9: 'Saldo sem juros', K10: 'Juros', K11: 'Saldo com juros' };
+  var resLabels = { K4: 'Participação Enpavi (obras, usina, matriz e adm.)', K5: 'Despesas Enpavi 029', K6: 'Obras antigas', K7: 'Retiradas', KP: 'Pagamentos às empresas', K8: 'Provisões', K9: 'Saldo sem juros', K10: 'Juros', K11: 'Saldo com juros' };
   function runSim(){
     var s = simular(D, sim);
     var body = document.getElementById('s-res'); body.innerHTML = '';

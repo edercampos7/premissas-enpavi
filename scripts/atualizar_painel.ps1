@@ -145,15 +145,25 @@ $params = [ordered]@{
     juros = Num (CV $P 'C5'); formaJuros = CV $P 'C6'; pctPadrao = Num (CV $P 'C7'); meses = Num (CV $P 'C8')
 }
 if (-not $params.corte) { throw "PREMISSAS ENPAVI!C4 (data de corte) está vazia ou sem valor calculado." }
-$resumo = [ordered]@{}
-foreach ($k in 4..11) {
-    $c = $P["K$k"]
-    if (-not $c -or -not ($c.v -is [double])) { throw "PREMISSAS ENPAVI!K$k sem valor calculado. Abra a planilha no Excel, salve e rode de novo." }
-    $resumo["K$k"] = $c.v
+# resumo: chaves fixas (K4 obras ... K7 retiradas, K8 provisões, K9 sem juros, K10 juros, K11 com juros);
+# se a linha 8 for "Pagamentos às empresas..." (item novo de 03/11/2026), ela vira a chave KP e as seguintes descem uma linha
+$mapaResumo = [ordered]@{ K4 = 4; K5 = 5; K6 = 6; K7 = 7; K8 = 8; K9 = 9; K10 = 10; K11 = 11 }
+if ((Norm (CV $P 'I8')).StartsWith('PAGAMENTOS AS EMPRESAS')) {
+    $mapaResumo = [ordered]@{ K4 = 4; K5 = 5; K6 = 6; K7 = 7; KP = 8; K8 = 9; K9 = 10; K10 = 11; K11 = 12 }
 }
-$resumo['texto'] = CV $P 'I12'
+$resumo = [ordered]@{}
 $rotulos = [ordered]@{}
-foreach ($k in 4..11) { $rotulos["K$k"] = CV $P "I$k" }
+$celulas = [ordered]@{}
+foreach ($k in $mapaResumo.Keys) {
+    $lin = $mapaResumo[$k]
+    $c = $P["K$lin"]
+    if (-not $c -or -not ($c.v -is [double])) { throw "PREMISSAS ENPAVI!K$lin sem valor calculado. Abra a planilha no Excel, salve e rode de novo." }
+    $resumo[$k] = $c.v
+    $rotulos[$k] = CV $P "I$lin"
+    $celulas[$k] = "K$lin"
+}
+$resumo['texto'] = CV $P ('I' + ($mapaResumo['K11'] + 1))
+$resumo['celulas'] = $celulas
 
 # cabeçalho do item 1 (linha com CÓDIGO na coluna A)
 $hdr1 = $null
@@ -231,6 +241,9 @@ if (($null -ne $retDig) -or ($null -ne $retUsina)) {
         $retMes[$i] = Round2 $v
     }
 }
+# pagamentos às empresas Enpavi, Usinas SP e ESO (aba RECEITAS), item próprio do resumo, na coluna AR (só no mês de corte)
+$hAR = Norm (CV $E 'AR7')
+if ($hAR.StartsWith('PAGAMENTOS AS EMPRESAS')) { $enc['AR'] = Series 'AR' }
 # adm. central: 'mensal' (coluna AA com SUMIFS dos caixas, receita acumulada até cada mês) ou 'corte' (valor único no mês de corte)
 $admModo = 'corte'
 $fAA = CF $E ('AA' + $mesRows[$cutIdx])
@@ -262,7 +275,7 @@ for ($r = $hdr1 + 1; $r -le $maxRowP; $r++) {
         }
         $adm = [ordered]@{ partes = $partes }
     }
-    elseif ($hF -and $hF -match "RECEITAS") { $tipo = 'retirada' }
+    elseif (($hF -and $hF -match "RECEITAS") -or ($ng -like 'RETIRADA*') -or ($nc -like 'RETIRADAS*')) { $tipo = 'retirada' }
     elseif ($nc -eq '029') { $tipo = 'c029' }
     elseif ($ng -like 'OBRAS ANTIGAS*') { $tipo = 'antiga' }
     elseif ($ng -like 'USINA*' -or $nc -like 'CA?APAV*') { $tipo = 'usina' }

@@ -11,7 +11,7 @@ new Function('ctx', sim + '\nctx.simular = simular; ctx.parametrosDaPlanilha = p
 D = ctx.desembrulhar(D);
 const s = ctx.simular(D, ctx.parametrosDaPlanilha(D));
 let max = 0;
-for (const k of ['K4','K5','K6','K7','K8','K9','K10','K11']) {
+for (const k of ['K4','K5','K6','K7'].concat(typeof D.resumo.KP === 'number' ? ['KP'] : []).concat(['K8','K9','K10','K11'])) {
   const d = s.res[k] - D.resumo[k]; max = Math.max(max, Math.abs(d));
   console.log(k.padEnd(4), D.resumo[k].toFixed(2).padStart(18), s.res[k].toFixed(2).padStart(18), d.toFixed(4).padStart(12));
 }
