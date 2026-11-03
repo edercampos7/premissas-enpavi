@@ -216,10 +216,21 @@ foreach ($col in $encCols.Keys) {
     if (-not $h.StartsWith($encCols[$col])) { throw "ENCONTRO ENPAVI!${col}7 deveria ser '$($encCols[$col])...' e está '$h'. A estrutura da aba mudou." }
     $enc[$col] = Series $col
 }
-# retiradas mensais da Enpavi digitadas na coluna AO (valor do mês), se existir
-$retMes = $null
+# retiradas mensais da Enpavi (valor do mês): digitadas na coluna AO e da usina Caçapava na coluna AQ, se existirem
+$retDig = $null; $retUsina = $null; $retMes = $null
 $hAO = Norm (CV $E 'AO7')
-if ($hAO.StartsWith('RETIRADAS ENPAVI NO M')) { $retMes = Series 'AO' }
+if ($hAO.StartsWith('RETIRADAS ENPAVI NO M')) { $retDig = Series 'AO' }
+$hAQ = Norm (CV $E 'AQ7')
+if ($hAQ.StartsWith('RETIRADAS ENPAVI USINA')) { $retUsina = Series 'AQ' }
+if (($null -ne $retDig) -or ($null -ne $retUsina)) {
+    $retMes = New-Object 'double[]' $mesRows.Count
+    for ($i = 0; $i -lt $mesRows.Count; $i++) {
+        $v = 0.0
+        if ($null -ne $retDig) { $v += $retDig[$i] }
+        if ($null -ne $retUsina) { $v += $retUsina[$i] }
+        $retMes[$i] = Round2 $v
+    }
+}
 # adm. central: 'mensal' (coluna AA com SUMIFS dos caixas, receita acumulada até cada mês) ou 'corte' (valor único no mês de corte)
 $admModo = 'corte'
 $fAA = CF $E ('AA' + $mesRows[$cutIdx])
@@ -358,6 +369,8 @@ $site = [ordered]@{
     corteIdx = $cutIdx
     admModo = $admModo
     retiradasMes = $retMes
+    retiradasDigitadas = $retDig
+    retiradasUsina = $retUsina
     fluxos = $flowOut
     encontro = $enc
     receitaObras = $receitaObras

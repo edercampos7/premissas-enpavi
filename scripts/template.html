@@ -574,7 +574,7 @@
     <div class="card">
       <ul class="open-list">
         <li id="aberto-ret"><b>Retiradas Enpavi:</b> definir se os pagamentos dos caixas à Enpavi, Usinas SP e ESO entram no encontro, e com qual percentual (eles já são despesa nos caixas das obras).</li>
-        <li><b>Usina Caçapava × PROCESSOS E RETIRADAS ENPAVI:</b> diferença de R$ 109.999,98 até 30/09/2026 (R$ 86.666,65 até 31/08/2026) nas retiradas lançadas no Dashboard da usina.</li>
+        <li><b>Usina Caçapava × PROCESSOS E RETIRADAS ENPAVI:</b> diferença de R$ 109.999,98 até 30/09/2026 (R$ 86.666,65 até 31/08/2026) nas retiradas da Enpavi lançadas no Dashboard da usina (que agora entram nas Retiradas, item 6).</li>
         <li><b>DER:</b> receita calculada das obras 01, 02, 09 e 15 (R$ 61,8 mi) × valor usado antes (R$ 90,9 mi).</li>
         <li><b>OBRA 06:</b> confirmar o % Tríade de 100% no consórcio DT PR 445.</li>
         <li><b>Obras antigas:</b> hoje entram 100% da diferença Enpavi × DP Barros.</li>
@@ -958,7 +958,12 @@ function parametrosDaPlanilha(D){
   }
   D.linhas.filter(function(l){ return l.tipo === 'usina'; }).forEach(function(l){
     miniCard('Usina Caçapava', 'Parte Enpavi · ' + fmtPct(l.G) + ' efetivo', l.H, l.J,
-      'Fluxo completo da usina (aba CAÇAPAV, extraída do Dashboard da usina): faturamento menos custos e retiradas. Entra mês a mês e corre juros, como as obras.');
+      (function(){
+        var su = 0; (D.retiradasUsina || []).forEach(function(v, k){ if (k <= D.corteIdx) su += v || 0; });
+        return Math.abs(su) > 0.005
+          ? 'Fluxo completo da usina (aba CAÇAPAV, extraída do Dashboard da usina): faturamento menos custos e retiradas do consórcio. As retiradas da Enpavi (' + fmtBRL(Math.abs(su)) + ') saíram do fluxo da usina (débito zerado) e entram nas Retiradas (item 6). Entra mês a mês e corre juros, como as obras.'
+          : 'Fluxo completo da usina (aba CAÇAPAV, extraída do Dashboard da usina): faturamento menos custos e retiradas. Entra mês a mês e corre juros, como as obras.';
+      })());
   });
   D.linhas.filter(function(l){ return l.tipo === 'c029'; }).forEach(function(l){
     miniCard('Despesas Enpavi 029', 'Lançamento direto da Enpavi · ' + fmtPct(l.G), l.H, l.J, 'Custos pagos diretamente pela/para a Enpavi (aba ENPAVI - CUSTO 029). Entra 100% na conta da Enpavi.');
@@ -984,22 +989,30 @@ function parametrosDaPlanilha(D){
     var rc = D.receitas;
     var lead = document.getElementById('ret-lead');
     var txt = '';
-    var rm = D.retiradasMes || [], meses = [];
-    for (var q = 0; q <= D.corteIdx; q++) if (Math.abs(rm[q] || 0) > 0.005 && D.meses[q] >= (D.params.inicio || '')) meses.push([q, rm[q]]);
-    var descMes = '';
-    if (meses.length) {
-      var iguais = meses.every(function(x){ return Math.abs(x[1] - meses[0][1]) < 0.005; });
-      var seguidos = meses.every(function(x, k){ return k === 0 || x[0] === meses[k - 1][0] + 1; });
-      var soma = meses.reduce(function(s, x){ return s + x[1]; }, 0);
-      descMes = (iguais && seguidos && meses.length > 1
-        ? 'retiradas de <b class="tabular">' + fmtBRL(Math.abs(meses[0][1])) + '</b> por mês de ' + fmtMes(D.meses[meses[0][0]]) + ' a ' + fmtMes(D.meses[meses[meses.length - 1][0]])
-        : 'retiradas em ' + meses.map(function(x){ return fmtMes(D.meses[x[0]]) + ' (' + fmtBRL(Math.abs(x[1])) + ')'; }).join(', ')) +
-        ', total <b class="tabular">' + fmtBRL(Math.abs(soma)) + '</b>';
+    function mesesDe(s){ var out = []; s = s || []; for (var q = 0; q <= D.corteIdx; q++) if (Math.abs(s[q] || 0) > 0.005 && D.meses[q] >= (D.params.inicio || '')) out.push([q, s[q]]); return out; }
+    function descSerie(ms){
+      if (!ms.length) return '';
+      var soma = ms.reduce(function(s, x){ return s + x[1]; }, 0);
+      var iguais = ms.every(function(x){ return Math.abs(x[1] - ms[0][1]) < 0.005; });
+      var seguidos = ms.every(function(x, k){ return k === 0 || x[0] === ms[k - 1][0] + 1; });
+      var ini = fmtMes(D.meses[ms[0][0]]), fim = fmtMes(D.meses[ms[ms.length - 1][0]]);
+      var tot = ', total <b class="tabular">' + fmtBRL(Math.abs(soma)) + '</b>';
+      if (ms.length === 1) return 'retiradas em ' + ini + tot;
+      if (iguais && seguidos) return 'retiradas de <b class="tabular">' + fmtBRL(Math.abs(ms[0][1])) + '</b> por mês de ' + ini + ' a ' + fim + tot;
+      if (ms.length <= 4) return 'retiradas em ' + ms.map(function(x){ return fmtMes(D.meses[x[0]]) + ' (' + fmtBRL(Math.abs(x[1])) + ')'; }).join(', ') + tot;
+      return 'retiradas em ' + ms.length + ' meses, de ' + ini + ' a ' + fim + tot;
     }
+    var usinaS = D.retiradasUsina || null;
+    var digS = D.retiradasDigitadas || (usinaS ? null : D.retiradasMes);
+    var mDig = mesesDe(digS), mUs = mesesDe(usinaS), meses = mesesDe(D.retiradasMes);
+    var partes = [];
+    if (mDig.length) partes.push(descSerie(mDig) + ' (coluna AO da ENCONTRO)');
+    if (mUs.length) partes.push(descSerie(mUs).replace(/^retiradas/, 'retiradas lançadas no fluxo da Usina Caçapava') + ' (aba CAÇAPAV, com o débito zerado; coluna AQ da ENCONTRO)');
+    var descMes = partes.length > 1 ? partes.map(function(x, k){ return '(' + (k + 1) + ') ' + x; }).join('; ') : (partes[0] || '');
     if (ret && meses.length) {
       var resto = ret.H - meses.reduce(function(s, x){ return s + x[1]; }, 0);
       txt = 'A linha <b>RETIRADAS ENPAVI</b> da PREMISSAS entra com <b class="tabular">' + fmtBRL(ret.H) + '</b>, ' + fmtPct(ret.G) + ' contra a Enpavi: ' + descMes +
-        ' (coluna AO da ENCONTRO). Cada retirada entra no mês em que aconteceu e corre juros desde então.' +
+        '. Cada retirada entra no mês em que aconteceu e corre juros desde então.' +
         (Math.abs(resto) > 0.5 ? ' Mais <b class="tabular">' + fmtBRL(resto) + '</b> da aba RECEITAS ' + (ret.data ? 'em ' + fmtMes(ret.data) : 'no mês de corte') + '.' : '');
       if (rc && rc.totalAba) txt += ' Os pagamentos dos caixas às empresas Enpavi, Usinas SP e ESO (<b class="tabular">' + fmtBRL(rc.totalAba.total) + '</b>, aba RECEITAS ENPAVI-USINAS SP-ESO) ' + (Math.abs(resto) > 0.5 ? 'entram pelo valor acima.' : 'não entram: já são despesa nos caixas das obras.');
     } else if (ret) {
@@ -1010,7 +1023,7 @@ function parametrosDaPlanilha(D){
     if (!meses.length && rc && rc.totalAba) txt += ' Os caixas das obras pagaram <b class="tabular">' + fmtBRL(rc.totalAba.total) + '</b> às empresas Enpavi, Usinas SP e ESO (aba RECEITAS ENPAVI-USINAS SP-ESO). Esses pagamentos já são despesa nos caixas das obras.';
     lead.innerHTML = txt;
     var ab = document.getElementById('aberto-ret');
-    if (ab && ret && meses.length) ab.innerHTML = '<b>Retiradas Enpavi:</b> entram ' + descMes + ' (' + fmtPct(ret.G) + ' contra a Enpavi). Os pagamentos dos caixas à Enpavi, Usinas SP e ESO (aba RECEITAS) seguem fora, porque já são despesa nos caixas das obras.';
+    if (ab && ret && meses.length) ab.innerHTML = '<b>Retiradas Enpavi:</b> entram ' + fmtPct(ret.G) + ' contra a Enpavi: ' + descMes + '. Os pagamentos dos caixas à Enpavi, Usinas SP e ESO (aba RECEITAS) seguem fora, porque já são despesa nos caixas das obras.';
     else if (ab && ret) ab.innerHTML = '<b>Retiradas Enpavi:</b> ' + (Math.abs(ret.H) > 0.5
       ? 'a linha entra hoje com <span class="tabular">' + fmtBRL(ret.H) + '</span> (' + fmtPct(ret.G) + ' para a Enpavi). Confirmar o valor e o percentual, já que esses pagamentos também são despesa nos caixas das obras.'
       : 'a linha está na planilha, mas hoje entra com valor zero. Definir se os pagamentos dos caixas à Enpavi, Usinas SP e ESO entram no encontro, e com qual percentual (eles já são despesa nos caixas das obras).');
