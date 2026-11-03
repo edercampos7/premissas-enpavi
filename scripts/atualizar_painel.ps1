@@ -230,8 +230,27 @@ foreach ($col in $encCols.Keys) {
 $retDig = $null; $retUsina = $null; $retMes = $null
 $hAO = Norm (CV $E 'AO7')
 if ($hAO.StartsWith('RETIRADAS ENPAVI NO M')) { $retDig = Series 'AO' }
+$retCol = 'AO'
 $hAQ = Norm (CV $E 'AQ7')
 if ($hAQ.StartsWith('RETIRADAS ENPAVI USINA')) { $retUsina = Series 'AQ' }
+elseif ($hAQ.StartsWith('RETIRADAS ENPAVI NO M')) {
+    # coluna AQ única: valor digitado (número na célula ou constante na fórmula) + retiradas da Caçapava (SUMIFS na aba CAÇAPAV)
+    $retCol = 'AQ'
+    $retDig = New-Object 'double[]' $mesRows.Count
+    $retUsina = New-Object 'double[]' $mesRows.Count
+    for ($i = 0; $i -lt $mesRows.Count; $i++) {
+        $refQ = 'AQ' + $mesRows[$i]
+        $valQ = Round2 (Num (CV $E $refQ))
+        $fQ = CF $E $refQ
+        $dig = 0.0
+        if ([math]::Abs($valQ) -lt 0.005) { $dig = 0.0 }
+        elseif (-not $fQ) { $dig = $valQ }
+        elseif ($fQ -match ',0,(-?\d+(?:\.\d+)?)-\(SUMIFS\(') { $dig = [double]::Parse($Matches[1], $inv) }
+        elseif ($fQ -notmatch 'SUMIFS\(') { $dig = $valQ }
+        $retDig[$i] = Round2 $dig
+        $retUsina[$i] = Round2 ($valQ - $dig)
+    }
+}
 if (($null -ne $retDig) -or ($null -ne $retUsina)) {
     $retMes = New-Object 'double[]' $mesRows.Count
     for ($i = 0; $i -lt $mesRows.Count; $i++) {
@@ -244,6 +263,10 @@ if (($null -ne $retDig) -or ($null -ne $retUsina)) {
 # pagamentos às empresas Enpavi, Usinas SP e ESO (aba RECEITAS), item próprio do resumo, na coluna AR (só no mês de corte)
 $hAR = Norm (CV $E 'AR7')
 if ($hAR.StartsWith('PAGAMENTOS AS EMPRESAS')) { $enc['AR'] = Series 'AR' }
+# juros do mês sem as retiradas (AL = (AJ - AH) * AK)?
+$jurosSemRet = $false
+$fAL = CF $E ('AL' + $mesRows[$cutIdx])
+if ($fAL -and ($fAL -match '-\s*AH\d+')) { $jurosSemRet = $true }
 # adm. central: 'mensal' (coluna AA com SUMIFS dos caixas, receita acumulada até cada mês) ou 'corte' (valor único no mês de corte)
 $admModo = 'corte'
 $fAA = CF $E ('AA' + $mesRows[$cutIdx])
@@ -384,6 +407,8 @@ $site = [ordered]@{
     retiradasMes = $retMes
     retiradasDigitadas = $retDig
     retiradasUsina = $retUsina
+    retiradasColuna = $retCol
+    jurosSemRetiradas = $jurosSemRet
     fluxos = $flowOut
     encontro = $enc
     receitaObras = $receitaObras

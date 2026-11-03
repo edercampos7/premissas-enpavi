@@ -651,7 +651,7 @@ function simular(D, p){
       }
       detalhe[l.linha] = { base: base };
     } else if (l.tipo === 'retirada') {
-      // retiradas do mês (coluna AO da ENCONTRO), acumuladas a partir do mês em que aconteceram,
+      // retiradas do mês (coluna AO/AQ da ENCONTRO), acumuladas a partir do mês em que aconteceram,
       // + o restante da linha (aba RECEITAS) em valor único no mês da data D (vazia = corte)
       var rm = D.retiradasMes || [], cutPlan = D.corteIdx, somaPlan = 0, acRet = 0;
       for (m = 0; m <= cutPlan; m++) if (D.meses[m].slice(0, 7) >= startKey) somaPlan += rm[m] || 0;
@@ -679,7 +679,7 @@ function simular(D, p){
   var AG = D.encontro.AG, acc = 0;
   for (m = 0; m <= c; m++) {
     AJ[m] = AD[m] + AE[m] + AF[m] + (AG[m] || 0) + AH[m] + AI[m] + AP[m];
-    AL[m] = D.meses[m].slice(0, 7) >= startKey ? AJ[m] * p.juros : 0;
+    AL[m] = D.meses[m].slice(0, 7) >= startKey ? (AJ[m] - (D.jurosSemRetiradas ? AH[m] : 0)) * p.juros : 0;
     acc += AL[m]; AM[m] = acc; AN[m] = AJ[m] + AM[m];
   }
   var res = { K4: AD[c], K5: AE[c], K6: AF[c], K7: (AG[c] || 0) + AH[c], K8: AI[c], K9: AJ[c], K10: AM[c], K11: AN[c] };
@@ -839,7 +839,7 @@ function parametrosDaPlanilha(D){
         ? (ADM_MENSAL ? 'Administração central mês a mês, sobre a receita acumulada das obras. Retiradas da Enpavi no mês em que aconteceram e provisões (retenções e IR a pagar) na data de corte.' : 'Retiradas da Enpavi no mês em que aconteceram; administração central sobre a receita das obras e provisões (retenções e IR a pagar) na data de corte.')
         : (ADM_MENSAL ? 'Administração central mês a mês, sobre a receita acumulada das obras. Retiradas já recebidas e provisões (retenções e IR a pagar) entram na data de corte.' : 'Administração central sobre a receita das obras, retiradas já recebidas e provisões (retenções e IR a pagar) na data de corte.') },
     TEM_PAG ? { t: 'Pagamentos às empresas', p: 'Os pagamentos dos caixas às empresas Enpavi, Usinas SP e ESO marcados na aba RECEITAS entram num item próprio, 100% contra a Enpavi, na data de corte.' } : null,
-    { t: 'Juros', p: 'Sobre o saldo de cada mês corre juros simples de ' + fmtPct(D.params.juros, 1) + ' ao mês, da data de início até a data de corte.' }
+    { t: 'Juros', p: 'Sobre o saldo de cada mês corre juros simples de ' + fmtPct(D.params.juros, 1) + ' ao mês, da data de início até a data de corte.' + (D.jurosSemRetiradas ? ' As retiradas da Enpavi não entram na base dos juros.' : '') }
   ].filter(function(s){ return s; }).forEach(function(s){ var c = el('div', 'item'); c.appendChild(el('div', 'it-t', s.t)); c.appendChild(el('p', null, s.p)); items.appendChild(c); });
 
   // ---------------- 2. parâmetros ----------------
@@ -853,7 +853,7 @@ function parametrosDaPlanilha(D){
       if (!ADM_MENSAL) it.push('a adm. central');
       return (it.length > 1 ? it.slice(0, -1).join(', ') + ' e ' + it[it.length - 1] : it[0]) + ' entram neste mês.';
     })() },
-    { l: 'Juros ao mês', v: fmtPct(D.params.juros, 1), p: 'Taxa fixa, juros simples: juros do mês = saldo sem juros do mês × taxa.' },
+    { l: 'Juros ao mês', v: fmtPct(D.params.juros, 1), p: D.jurosSemRetiradas ? 'Taxa fixa, juros simples: juros do mês = (saldo sem juros do mês − retiradas) × taxa. As retiradas não rendem juros.' : 'Taxa fixa, juros simples: juros do mês = saldo sem juros do mês × taxa.' },
     { l: '% Enpavi padrão', v: fmtPct(pad), p: 'Percentual da Enpavi sobre a parte da Tríade, usado nas linhas que não têm percentual próprio.' }
   ].forEach(function(x){
     var c = el('div', 'param'); c.appendChild(el('div', 'p-l', x.l)); c.appendChild(el('div', 'p-v tabular', x.v)); c.appendChild(el('p', null, x.p)); params.appendChild(c);
@@ -1040,13 +1040,13 @@ function parametrosDaPlanilha(D){
     var digS = D.retiradasDigitadas || (usinaS ? null : D.retiradasMes);
     var mDig = mesesDe(digS), mUs = mesesDe(usinaS), meses = mesesDe(D.retiradasMes);
     var partes = [];
-    if (mDig.length) partes.push(descSerie(mDig) + ' (coluna AO da ENCONTRO)');
+    if (mDig.length) partes.push(descSerie(mDig) + ' (coluna ' + (D.retiradasColuna || 'AO') + ' da ENCONTRO)');
     if (mUs.length) partes.push(descSerie(mUs).replace(/^retiradas/, 'retiradas lançadas no fluxo da Usina Caçapava') + ' (aba CAÇAPAV, com o débito zerado; coluna AQ da ENCONTRO)');
     var descMes = partes.length > 1 ? partes.map(function(x, k){ return '(' + (k + 1) + ') ' + x; }).join('; ') : (partes[0] || '');
     if (ret && meses.length) {
       var resto = ret.H - meses.reduce(function(s, x){ return s + x[1]; }, 0);
       txt = 'A linha <b>RETIRADAS ENPAVI</b> da PREMISSAS entra com <b class="tabular">' + fmtBRL(ret.H) + '</b>, ' + fmtPct(ret.G) + ' contra a Enpavi: ' + descMes +
-        '. Cada retirada entra no mês em que aconteceu e corre juros desde então.' +
+        (D.jurosSemRetiradas ? '. Cada retirada entra no mês em que aconteceu, <b>sem juros</b>: os juros do mês são calculados sobre o saldo sem as retiradas.' : '. Cada retirada entra no mês em que aconteceu e corre juros desde então.') +
         (Math.abs(resto) > 0.5 ? ' Mais <b class="tabular">' + fmtBRL(resto) + '</b> da aba RECEITAS ' + (ret.data ? 'em ' + fmtMes(ret.data) : 'no mês de corte') + '.' : '');
       if (TEM_PAG) txt += textoPag();
       else if (rc && rc.totalAba) txt += ' Os pagamentos dos caixas às empresas Enpavi, Usinas SP e ESO (<b class="tabular">' + fmtBRL(rc.totalAba.total) + '</b>, aba RECEITAS ENPAVI-USINAS SP-ESO) ' + (Math.abs(resto) > 0.5 ? 'entram pelo valor acima.' : 'não entram: já são despesa nos caixas das obras.');
@@ -1059,7 +1059,7 @@ function parametrosDaPlanilha(D){
     else if (!meses.length && rc && rc.totalAba) txt += ' Os caixas das obras pagaram <b class="tabular">' + fmtBRL(rc.totalAba.total) + '</b> às empresas Enpavi, Usinas SP e ESO (aba RECEITAS ENPAVI-USINAS SP-ESO). Esses pagamentos já são despesa nos caixas das obras.';
     lead.innerHTML = txt;
     var ab = document.getElementById('aberto-ret');
-    if (ab && ret && meses.length) ab.innerHTML = '<b>Retiradas Enpavi:</b> entram ' + fmtPct(ret.G) + ' contra a Enpavi: ' + descMes + '. ' + (TEM_PAG
+    if (ab && ret && meses.length) ab.innerHTML = '<b>Retiradas Enpavi:</b> entram ' + fmtPct(ret.G) + ' contra a Enpavi' + (D.jurosSemRetiradas ? ', sem juros' : '') + ': ' + descMes + '. ' + (TEM_PAG
       ? 'Os pagamentos às empresas Enpavi, Usinas SP e ESO da aba RECEITAS (<span class="tabular">' + fmtBRL(R.KP) + '</span>) entram em item próprio. Confirmar se esses lançamentos devem sair dos caixas ' + (abasPag().length ? '(' + abasPag().join(', ') + ') ' : '') + 'onde hoje também são despesa, como foi feito na CAÇAPAV.'
       : 'Os pagamentos dos caixas à Enpavi, Usinas SP e ESO (aba RECEITAS) seguem fora, porque já são despesa nos caixas das obras.');
     else if (ab && ret) ab.innerHTML = '<b>Retiradas Enpavi:</b> ' + (Math.abs(ret.H) > 0.5
@@ -1191,7 +1191,7 @@ function parametrosDaPlanilha(D){
       itens.push('as provisões');
       var s = (itens.length > 1 ? itens.slice(0, -1).join(', ') + ' e ' + itens[itens.length - 1] : itens[0]) + '.';
       if (ADM_MENSAL) s += ' A adm. central entra mês a mês, sobre a receita acumulada até cada mês.';
-      if (temMes) s += ' As retiradas da Enpavi entram no mês em que aconteceram (coluna Retiradas).';
+      if (temMes) s += ' As retiradas da Enpavi entram no mês em que aconteceram (coluna Retiradas)' + (D.jurosSemRetiradas ? ', sem juros: os juros do mês são calculados sobre o saldo sem as retiradas.' : '.');
       return s;
     })() + ' Escolha o mês abaixo (ou clique no gráfico ou numa linha da tabela) para ver os valores daquele mês.';
   var lineSeries = [
@@ -1235,7 +1235,7 @@ function parametrosDaPlanilha(D){
         temPag ? { t: 'Pagamentos às empresas', v: PAG[i] || 0, n: i === cut ? 'Entram no mês de corte' : 'Só no mês de corte' } : null,
         { t: 'Provisões', v: EN.AI[i], n: i === cut ? 'Entram no mês de corte' : 'Só no mês de corte' },
         { t: 'Saldo sem juros', v: EN.AJ[i], n: 'Soma do mês', hl: true },
-        { t: 'Juros do mês', v: EN.AL[i], n: 'Saldo sem juros × ' + taxa },
+        { t: 'Juros do mês', v: EN.AL[i], n: D.jurosSemRetiradas ? '(Saldo sem juros − retiradas) × ' + taxa : 'Saldo sem juros × ' + taxa },
         { t: 'Juros acumulados', v: EN.AM[i], n: 'Soma dos juros até o mês' },
         { t: 'Saldo com juros', v: EN.AN[i], n: (EN.AN[i] < -0.005 ? 'A favor da Tríade' : (EN.AN[i] > 0.005 ? 'A favor da Enpavi' : 'Zerado')), hl: true }
       ].filter(function(d){ return d; });
