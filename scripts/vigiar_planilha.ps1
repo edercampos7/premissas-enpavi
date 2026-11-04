@@ -1,4 +1,4 @@
-<#
+﻿<#
 Vigia a planilha do encontro de contas Triade x Enpavi. Sempre que ela for salva
 no Excel, regenera o index.html e publica no GitHub (commit + push). O GitHub
 Pages atualiza o site cerca de 1 a 2 minutos depois.
@@ -42,6 +42,11 @@ function Log([string]$msg) {
         [System.IO.File]::AppendAllText($LogPath, (Get-Date).ToString('yyyy-MM-dd HH:mm:ss') + '  ' + $msg + "`r`n", $utf8)
     } catch { }
 }
+
+# 04/11/2026: site desativado a pedido do Eder. O vigia sai sem fazer nada.
+# Para tirar a tarefa agendada do Windows: botao direito em scripts\desinstalar.ps1 > Executar com o PowerShell.
+Log 'Site desativado em 04/11/2026: o vigia nao faz mais nada.'
+exit 0
 
 function Aviso([string]$titulo, [string]$texto, [bool]$erro) {
     if ($SemAviso -or ($env:OS -ne 'Windows_NT')) { return }

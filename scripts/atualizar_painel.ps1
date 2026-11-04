@@ -15,6 +15,9 @@ param(
     [string]$ProjectDir = (Split-Path -Parent $PSScriptRoot)
 )
 $ErrorActionPreference = 'Stop'
+# 04/11/2026: site desativado a pedido do Eder. O gerador não faz mais nada (o index.html fica com o aviso de desativado).
+Write-Host 'Site desativado em 04/11/2026: nada a gerar.'
+return
 # Windows PowerShell 5.1: sem isto o ConvertTo-Json grava as listas como {"value":[...],"Count":n}
 try { Remove-TypeData -TypeName System.Array -ErrorAction Stop } catch { }
 $utf8 = New-Object System.Text.UTF8Encoding($false)

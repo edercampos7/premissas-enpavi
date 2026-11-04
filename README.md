@@ -1,5 +1,7 @@
 # Encontro de Contas Enpavi — SCP Tríade × Enpavi
 
+> **Site desativado em 04/11/2026.** O endereço mostra só um aviso, o gerador e o vigia não fazem mais nada. Para tirar a tarefa agendada do Windows, rode `scripts\desinstalar.ps1` (botão direito → Executar com o PowerShell).
+
 Apresentação didática da aba **PREMISSAS ENPAVI** da planilha de fechamento: como a parte da Enpavi é calculada obra a obra, a administração central, a Usina Caçapava, o custo 029, a matriz, as obras antigas, as retiradas, o encontro de contas mês a mês com juros e um simulador.
 
 **Site:** https://edercampos7.github.io/premissas-enpavi/
