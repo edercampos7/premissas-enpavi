@@ -268,6 +268,8 @@ $jurosSemRet = $false
 $fAL = CF $E ('AL' + $mesRows[$cutIdx])
 if ($fAL -and ($fAL -match '-\s*AH\d+')) { $jurosSemRet = $true }
 $jurosSemProv = [bool]($fAL -and ($fAL -match '-\s*AI\d+'))
+# forma nova (03/11 21h39): base dos juros = SOMA(AD:AF), sem retiradas (AG/AH) e sem provisões (AI)
+if ($fAL -and ($fAL -match 'SUM\(AD\d+:AF\d+\)')) { $jurosSemRet = $true; $jurosSemProv = $true }
 $jurosSeletor = [bool]($fAL -and ($fAL -match 'COMPOSTO'))
 $jurosComposto = $jurosSeletor -and ((Norm ([string](CV $P 'C6'))) -eq 'COMPOSTO')
 # adm. central: 'mensal' (coluna AA com SUMIFS dos caixas, receita acumulada até cada mês) ou 'corte' (valor único no mês de corte)

@@ -682,7 +682,7 @@ function simular(D, p){
     AJ[m] = AD[m] + AE[m] + AF[m] + (AG[m] || 0) + AH[m] + AI[m] + AP[m];
     // base dos juros: saldo do mês sem retiradas / provisões (se a planilha faz assim) + juros acumulados (só no composto)
     AL[m] = D.meses[m].slice(0, 7) >= startKey
-      ? (AJ[m] - (D.jurosSemRetiradas ? AH[m] : 0) - (D.jurosSemProvisoes ? AI[m] : 0) + (p.composto ? acc : 0)) * p.juros : 0;
+      ? (AJ[m] - (D.jurosSemRetiradas ? AH[m] + (AG[m] || 0) : 0) - (D.jurosSemProvisoes ? AI[m] : 0) + (p.composto ? acc : 0)) * p.juros : 0;
     acc += AL[m]; AM[m] = acc; AN[m] = AJ[m] + AM[m];
   }
   var res = { K4: AD[c], K5: AE[c], K6: AF[c], K7: (AG[c] || 0) + AH[c], K8: AI[c], K9: AJ[c], K10: AM[c], K11: AN[c] };
