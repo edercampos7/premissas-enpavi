@@ -431,19 +431,6 @@
   @media (max-width: 900px){ .kpis.cinco{ grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 460px){ .kpis.cinco:not(.month-kpis){ grid-template-columns: 1fr; } .kpis:not(.month-kpis) .kpi.span2{ grid-column: auto; } }
 
-  /* seletor da forma dos juros (topo) */
-  .juros-sel{ display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px; margin:0 0 16px; padding:12px 16px; background: var(--surface); border:1px solid var(--line); border-radius:12px; box-shadow: var(--shadow); }
-  .juros-sel .js-label{ font-family:"Oswald",sans-serif; font-size:13px; letter-spacing:0.08em; text-transform:uppercase; color: var(--ink-2); }
-  .juros-sel .seg{ display:inline-flex; border:1px solid var(--line-strong); border-radius:9px; overflow:hidden; }
-  .juros-sel .seg button{ font:inherit; border:0; background: var(--surface); color: var(--ink); padding:8px 14px; cursor:pointer; display:flex; flex-direction:column; align-items:flex-start; gap:2px; text-align:left; }
-  .juros-sel .seg button + button{ border-left:1px solid var(--line-strong); }
-  .juros-sel .seg button .t{ font-weight:600; font-size:14px; }
-  .juros-sel .seg button .v{ font-size:12px; color: var(--muted); }
-  .juros-sel .seg button[aria-checked="true"]{ background: var(--accent); color: var(--accent-ink); cursor:default; }
-  .juros-sel .seg button[aria-checked="true"] .v{ color: inherit; opacity:0.9; }
-  .juros-sel .seg button:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
-  .juros-sel .js-note{ font-size:13px; color: var(--muted); flex:1 1 260px; }
-  @media (max-width: 460px){ .juros-sel .seg{ width:100%; } .juros-sel .seg button{ flex:1; } }
   /* item 1: lista direta */
   .consid{ list-style:none; margin:4px 0 0; padding:0; display:grid; gap:10px; max-width:860px; }
   .consid li{ position:relative; padding-left:18px; font-size:15px; line-height:1.55; color: var(--ink-2); }
@@ -485,14 +472,6 @@
   </nav>
 
   <section id="sec-resumo">
-    <div class="juros-sel" id="juros-sel">
-      <div class="js-label">Juros aplicados</div>
-      <div class="seg" role="radiogroup" aria-label="Juros aplicados">
-        <button type="button" role="radio" data-modo="simples"><span class="t">Juros simples</span><span class="v tabular"></span></button>
-        <button type="button" role="radio" data-modo="composto"><span class="t">Juros compostos</span><span class="v tabular"></span></button>
-      </div>
-      <div class="js-note" id="js-note"></div>
-    </div>
     <div class="kpis" id="kpi-row"></div>
     <div class="verdict" id="verdict"></div>
   </section>
@@ -743,35 +722,13 @@ function parametrosDaPlanilha(D){
   var KEYS = ['K4','K5','K6','K7'].concat(TEM_PAG ? ['KP'] : []).concat(['K8','K9','K10','K11']);
   function celula(k){ return ((D.resumo || {}).celulas || {})[k] || k; }
 
-  // ---------------- forma dos juros escolhida no site (?juros=simples|composto) ----------------
-  // A planilha calcula na forma da célula C6. A outra forma é refeita aqui com o simulador
-  // (mesma lógica da ENCONTRO) e passa a valer para o site inteiro: resumo, mês a mês e simulador.
-  var MODO_PLAN = D.jurosComposto ? 'composto' : 'simples';
-  var MODO = MODO_PLAN;
-  try {
-    var qm = (new URLSearchParams(window.location.search)).get('juros');
-    if (D.jurosSeletor && (qm === 'simples' || qm === 'composto')) MODO = qm;
-  } catch (e) {}
-  var CEN = {}, CHECK_PLAN = 0;
-  (function(){
+  // ---------------- conferência: o simulador refaz o resumo da planilha ----------------
+  var CHECK_PLAN = (function(){
     var sPlan = simular(D, parametrosDaPlanilha(D));
-    CHECK_PLAN = KEYS.reduce(function(m, k){ return Math.max(m, Math.abs(sPlan.res[k] - D.resumo[k])); }, 0);
-    ['simples', 'composto'].forEach(function(m){
-      if (m === MODO_PLAN) { CEN[m] = { K10: D.resumo.K10, K11: D.resumo.K11 }; return; }
-      var pp = parametrosDaPlanilha(D); pp.composto = (m === 'composto');
-      var s = simular(D, pp);
-      CEN[m] = { K10: s.res.K10, K11: s.res.K11, sim: s };
-    });
-    if (MODO !== MODO_PLAN) {
-      var s = CEN[MODO].sim;
-      D.resumo.K10 = s.res.K10; D.resumo.K11 = s.res.K11;
-      D.resumo.texto = s.res.K11 >= 0 ? 'Saldo a favor da Enpavi (Tríade deve à Enpavi)' : 'Saldo a favor da Tríade (Enpavi deve à Tríade)';
-      D.encontro.AL = s.AL; D.encontro.AM = s.AM; D.encontro.AN = s.AN;
-      D.jurosComposto = (MODO === 'composto');
-    }
+    return KEYS.reduce(function(m, k){ return Math.max(m, Math.abs(sPlan.res[k] - D.resumo[k])); }, 0);
   })();
-  var NO_PLAN = MODO === MODO_PLAN;
-  var BASE_NOME = NO_PLAN ? 'Planilha' : 'Base';
+  var NO_PLAN = true;
+  var BASE_NOME = 'Planilha';
 
   // ---------------- formatação ----------------
   var nf2 = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -830,24 +787,6 @@ function parametrosDaPlanilha(D){
   document.getElementById('meta-corte').textContent = fmtDate(D.params.corte);
   document.getElementById('meta-inicio').textContent = fmtDate(D.params.inicio);
   var COMPOSTO = !!D.jurosComposto;
-  (function(){
-    var box = document.getElementById('juros-sel');
-    if (!box) return;
-    if (!D.jurosSeletor) { box.style.display = 'none'; return; }
-    var nomes = { simples: 'juros simples', composto: 'juros compostos' };
-    box.querySelectorAll('button[data-modo]').forEach(function(b){
-      var m = b.getAttribute('data-modo');
-      b.setAttribute('aria-checked', m === MODO ? 'true' : 'false');
-      var v = b.querySelector('.v'); if (v) v.textContent = 'Saldo com juros ' + fmtBRL(CEN[m].K11);
-      b.addEventListener('click', function(){
-        if (m === MODO) return;
-        window.location.href = window.location.pathname + (m === MODO_PLAN ? '' : '?juros=' + m);
-      });
-    });
-    document.getElementById('js-note').innerHTML = NO_PLAN
-      ? 'Valores com ' + nomes[MODO] + ', como está na planilha (célula C6 da PREMISSAS). Escolha a outra forma para ver o site inteiro recalculado com ela.'
-      : 'Site recalculado com <b>' + nomes[MODO] + '</b>. A planilha está com ' + nomes[MODO_PLAN] + ' (célula C6 da PREMISSAS) e não muda.';
-  })();
   document.getElementById('meta-juros').textContent = fmtPct(D.params.juros, 1) + ' ao mês (' + (D.jurosSeletor ? (COMPOSTO ? 'compostos' : 'simples') : String(D.params.formaJuros || 'simples').toLowerCase()) + ')';
   function foraDaBase(){
     var f = [];
@@ -912,7 +851,7 @@ function parametrosDaPlanilha(D){
       '<b>Descontos:</b> ' + listaCorte + ' entram na data de corte' + (ADM_MENSAL ? '; a administração central entra mês a mês' : '') +
         (RET_MENSAL ? '; as retiradas da Enpavi entram no mês em que aconteceram.' : '; as retiradas da Enpavi também entram na data de corte.'),
       '<b>Juros:</b> ' + (COMPOSTO ? 'compostos' : 'simples') + ', de ' + fmtPct(D.params.juros, 1) + ' ao mês sobre o saldo de cada mês' + (fora ? ', sem ' + fora : '') + '.' +
-        (D.jurosSeletor ? ' A forma é escolhida no seletor acima.' : ''),
+        '',
       '<b>Sinal:</b> valores positivos são a favor da Enpavi; negativos, a favor da Tríade.'
     ];
     var ul = document.getElementById('consid');
@@ -930,7 +869,7 @@ function parametrosDaPlanilha(D){
       if (!ADM_MENSAL) it.push('a adm. central');
       return (it.length > 1 ? it.slice(0, -1).join(', ') + ' e ' + it[it.length - 1] : it[0]) + ' entram neste mês.';
     })() },
-    { l: 'Juros ao mês', v: fmtPct(D.params.juros, 1), p: 'Taxa fixa, juros ' + (COMPOSTO ? 'compostos' : 'simples') + ': juros do mês = (' + ['saldo sem juros do mês'].concat(D.jurosSemRetiradas ? ['retiradas'] : []).concat(D.jurosSemProvisoes ? ['provisões'] : []).join(' − ') + (COMPOSTO ? ' + juros acumulados até o mês anterior' : '') + ') × taxa.' + (D.jurosSeletor ? ' Simples ou composto: seletor no topo do site (na planilha, célula C6).' : '') },
+    { l: 'Juros ao mês', v: fmtPct(D.params.juros, 1), p: 'Taxa fixa, juros ' + (COMPOSTO ? 'compostos' : 'simples') + ': juros do mês = (' + ['saldo sem juros do mês'].concat(D.jurosSemRetiradas ? ['retiradas'] : []).concat(D.jurosSemProvisoes ? ['provisões'] : []).join(' − ') + (COMPOSTO ? ' + juros acumulados até o mês anterior' : '') + ') × taxa.' },
     { l: '% Enpavi padrão', v: fmtPct(pad), p: 'Percentual da Enpavi sobre a parte da Tríade, usado nas linhas que não têm percentual próprio.' }
   ].forEach(function(x){
     var c = el('div', 'param'); c.appendChild(el('div', 'p-l', x.l)); c.appendChild(el('div', 'p-v tabular', x.v)); c.appendChild(el('p', null, x.p)); params.appendChild(c);
@@ -1366,12 +1305,6 @@ function parametrosDaPlanilha(D){
   sJuros.value = (base.juros * 100).toFixed(2);
   for (var mi = cut; mi >= 0; mi--) { if (mi < first) break; var o = el('option', null, fmtMes(D.meses[mi])); o.value = mi; sCorte.appendChild(o); }
   sCorte.value = String(cut);
-  var sForma = document.getElementById('s-forma');
-  if (sForma) {
-    if (!D.jurosSeletor) sForma.parentNode.style.display = 'none';
-    sForma.value = base.composto ? 'composto' : 'simples';
-    sForma.addEventListener('change', function(){ sim.composto = sForma.value === 'composto'; sForma.classList.toggle('changed', sim.composto !== base.composto); runSim(); });
-  }
   var togDefs = [['adm', 'Adm. central'], ['retirada', 'Retiradas']].concat(TEM_PAG ? [['pagamentos', 'Pagamentos às empresas']] : []).concat([['provisoes', 'Provisões'], ['antigas', 'Obras antigas'], ['c029', 'Despesas Enpavi 029'], ['usina', 'Usina Caçapava'], ['matriz', 'Matriz']]);
   var togBox = document.getElementById('s-toggles');
   togDefs.forEach(function(t){
@@ -1410,7 +1343,6 @@ function parametrosDaPlanilha(D){
     sim = JSON.parse(JSON.stringify(base));
     sJuros.value = (base.juros * 100).toFixed(2); sJuros.classList.remove('changed');
     sCorte.value = String(cut); sCorte.classList.remove('changed');
-    if (sForma) { sForma.value = base.composto ? 'composto' : 'simples'; sForma.classList.remove('changed'); }
     lineInputs.forEach(function(x){ x.value = x.dataset.base; x.classList.remove('changed'); });
     togBox.querySelectorAll('input').forEach(function(cb){ cb.checked = true; });
     runSim();
