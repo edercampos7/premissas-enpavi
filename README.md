@@ -52,6 +52,7 @@ Dois cliques em **Documentos\premissas-enpavi\atualizar_agora.bat**. Ele publica
 
 - No rodapé do site: **"Planilha salva em ..."** (horário em que a planilha foi salva) e **"Apresentação gerada em ..."**.
 - No simulador: a faixa verde **"Conferido"** confirma que a conta refeita no site bate com o resumo K4–K11 da planilha.
+- No topo do site, o seletor **Juros aplicados** mostra tudo com juros simples ou compostos. O padrão é a forma da célula C6 da PREMISSAS; a outra forma é recalculada no próprio site (endereço com `?juros=composto` ou `?juros=simples`) e a planilha não muda.
 - Histórico do que o vigia fez: **Documentos\premissas-enpavi\scripts\log.txt**.
 
 ## Se aparecer "Site Enpavi NÃO atualizado"
@@ -70,7 +71,7 @@ Ele usa os valores que o Excel grava ao salvar, então a planilha precisa ter si
 
 ## Mudar os textos do site
 
-Os textos fixos (por exemplo **Pontos em aberto** e o **Glossário**) ficam em `scripts/template.html`. Dá para editar direto no GitHub (abrir o arquivo → lápis → *Commit changes*). Em até 15 minutos o vigia baixa a mudança e publica o site de novo com a planilha atual.
+Os textos fixos (por exemplo **Pontos de Observação**) ficam em `scripts/template.html`. Dá para editar direto no GitHub (abrir o arquivo → lápis → *Commit changes*). Em até 15 minutos o vigia baixa a mudança e publica o site de novo com a planilha atual.
 
 ## Desligar a atualização automática
 

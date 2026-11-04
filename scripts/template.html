@@ -430,6 +430,28 @@
   .kpis .kpi.span2{ grid-column: span 2; }
   @media (max-width: 900px){ .kpis.cinco{ grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 460px){ .kpis.cinco:not(.month-kpis){ grid-template-columns: 1fr; } .kpis:not(.month-kpis) .kpi.span2{ grid-column: auto; } }
+
+  /* seletor da forma dos juros (topo) */
+  .juros-sel{ display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px; margin:0 0 16px; padding:12px 16px; background: var(--surface); border:1px solid var(--line); border-radius:12px; box-shadow: var(--shadow); }
+  .juros-sel .js-label{ font-family:"Oswald",sans-serif; font-size:13px; letter-spacing:0.08em; text-transform:uppercase; color: var(--ink-2); }
+  .juros-sel .seg{ display:inline-flex; border:1px solid var(--line-strong); border-radius:9px; overflow:hidden; }
+  .juros-sel .seg button{ font:inherit; border:0; background: var(--surface); color: var(--ink); padding:8px 14px; cursor:pointer; display:flex; flex-direction:column; align-items:flex-start; gap:2px; text-align:left; }
+  .juros-sel .seg button + button{ border-left:1px solid var(--line-strong); }
+  .juros-sel .seg button .t{ font-weight:600; font-size:14px; }
+  .juros-sel .seg button .v{ font-size:12px; color: var(--muted); }
+  .juros-sel .seg button[aria-checked="true"]{ background: var(--accent); color: var(--accent-ink); cursor:default; }
+  .juros-sel .seg button[aria-checked="true"] .v{ color: inherit; opacity:0.9; }
+  .juros-sel .seg button:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  .juros-sel .js-note{ font-size:13px; color: var(--muted); flex:1 1 260px; }
+  @media (max-width: 460px){ .juros-sel .seg{ width:100%; } .juros-sel .seg button{ flex:1; } }
+  /* item 1: lista direta */
+  .consid{ list-style:none; margin:4px 0 0; padding:0; display:grid; gap:10px; max-width:860px; }
+  .consid li{ position:relative; padding-left:18px; font-size:15px; line-height:1.55; color: var(--ink-2); }
+  .consid li::before{ content:""; position:absolute; left:2px; top:0.62em; width:7px; height:7px; border-radius:50%; background: var(--accent); }
+  .consid li b{ color: var(--ink); }
+  /* legenda com amostra da linha */
+  .legend .swatch-line{ flex:none; display:block; }
+  .legend-nota{ flex-basis:100%; font-size:12.5px; color: var(--muted); margin-top:-6px; }
 </style>
 </head>
 <body>
@@ -459,19 +481,26 @@
     <a href="#sec-retiradas">Retiradas</a>
     <a href="#sec-mensal">Mês a mês</a>
     <a href="#sec-simulador">Simulador</a>
-    <a href="#sec-aberto">Pontos em aberto</a>
+    <a href="#sec-aberto">Pontos de observação</a>
   </nav>
 
   <section id="sec-resumo">
+    <div class="juros-sel" id="juros-sel">
+      <div class="js-label">Juros aplicados</div>
+      <div class="seg" role="radiogroup" aria-label="Juros aplicados">
+        <button type="button" role="radio" data-modo="simples"><span class="t">Juros simples</span><span class="v tabular"></span></button>
+        <button type="button" role="radio" data-modo="composto"><span class="t">Juros compostos</span><span class="v tabular"></span></button>
+      </div>
+      <div class="js-note" id="js-note"></div>
+    </div>
     <div class="kpis" id="kpi-row"></div>
     <div class="verdict" id="verdict"></div>
   </section>
 
   <section id="sec-como">
-    <div class="section-head"><h2><span class="num">1</span>Considerações Gerais</h2><div class="desc">Do resultado de cada obra até a parte da Enpavi</div></div>
+    <div class="section-head"><h2><span class="num">1</span>Considerações Gerais</h2><div class="desc">Visão geral do cálculo</div></div>
     <p class="lead" id="como-lead"></p>
-    <div class="steps" id="steps"></div>
-    <div class="items-grid" id="items-grid"></div>
+    <ul class="consid" id="consid"></ul>
   </section>
 
   <section id="sec-parametros">
@@ -503,7 +532,7 @@
   </section>
 
   <section id="sec-outros">
-    <div class="section-head"><h2><span class="num">5</span>Usina Caçapava, despesas Enpavi 029, matriz e obras antigas</h2><div class="desc">Fluxos que não são obras da Ata</div></div>
+    <div class="section-head"><h2><span class="num">5</span>Usina Caçapava, despesas Enpavi 029, matriz e obras antigas</h2><div class="desc">Fluxos que não são das obras da Tríade</div></div>
     <div class="cards-3" id="outros-cards"></div>
   </section>
 
@@ -551,7 +580,6 @@
         <div class="sim-controls">
           <label class="field">Juros ao mês (%)<input type="number" step="0.01" id="s-juros"></label>
           <label class="field">Mês de corte<select id="s-corte"></select></label>
-          <label class="field">Forma dos juros<select id="s-forma"><option value="simples">Simples</option><option value="composto">Composto</option></select></label>
         </div>
         <div class="toggles" id="s-toggles"></div>
         <div class="table-wrap sim-lines">
@@ -564,7 +592,7 @@
       <div class="sim-res">
         <div class="table-wrap">
           <table>
-            <thead><tr><th class="static">Resumo</th><th class="static num">Planilha</th><th class="static num">Simulação</th><th class="static num">Diferença</th></tr></thead>
+            <thead><tr><th class="static">Resumo</th><th class="static num" id="s-th-base">Planilha</th><th class="static num">Simulação</th><th class="static num">Diferença</th></tr></thead>
             <tbody id="s-res"></tbody>
           </table>
         </div>
@@ -576,7 +604,7 @@
   </section>
 
   <section id="sec-aberto">
-    <div class="section-head"><h2><span class="num">9</span>Pontos em aberto</h2><div class="desc">Itens a confirmar antes de fechar a distribuição</div></div>
+    <div class="section-head"><h2><span class="num">9</span>Pontos de Observação</h2><div class="desc">Itens a confirmar antes de fechar a distribuição</div></div>
     <div class="card">
       <ul class="open-list">
         <li id="aberto-ret"><b>Retiradas Enpavi:</b> definir se os pagamentos dos caixas à Enpavi, Usinas SP e ESO entram no encontro, e com qual percentual (eles já são despesa nos caixas das obras).</li>
@@ -689,7 +717,7 @@ function simular(D, p){
   if (temKP) res.KP = AP[c];
   return {
     res: res,
-    AJ: AJ, AM: AM, AN: AN, detalhe: detalhe
+    AJ: AJ, AL: AL, AM: AM, AN: AN, detalhe: detalhe
   };
 }
 // O Windows PowerShell 5.1 às vezes grava listas como {"value":[...],"Count":n}; aqui elas voltam a ser listas.
@@ -714,6 +742,36 @@ function parametrosDaPlanilha(D){
   var TEM_PAG = typeof (D.resumo || {}).KP === 'number';
   var KEYS = ['K4','K5','K6','K7'].concat(TEM_PAG ? ['KP'] : []).concat(['K8','K9','K10','K11']);
   function celula(k){ return ((D.resumo || {}).celulas || {})[k] || k; }
+
+  // ---------------- forma dos juros escolhida no site (?juros=simples|composto) ----------------
+  // A planilha calcula na forma da célula C6. A outra forma é refeita aqui com o simulador
+  // (mesma lógica da ENCONTRO) e passa a valer para o site inteiro: resumo, mês a mês e simulador.
+  var MODO_PLAN = D.jurosComposto ? 'composto' : 'simples';
+  var MODO = MODO_PLAN;
+  try {
+    var qm = (new URLSearchParams(window.location.search)).get('juros');
+    if (D.jurosSeletor && (qm === 'simples' || qm === 'composto')) MODO = qm;
+  } catch (e) {}
+  var CEN = {}, CHECK_PLAN = 0;
+  (function(){
+    var sPlan = simular(D, parametrosDaPlanilha(D));
+    CHECK_PLAN = KEYS.reduce(function(m, k){ return Math.max(m, Math.abs(sPlan.res[k] - D.resumo[k])); }, 0);
+    ['simples', 'composto'].forEach(function(m){
+      if (m === MODO_PLAN) { CEN[m] = { K10: D.resumo.K10, K11: D.resumo.K11 }; return; }
+      var pp = parametrosDaPlanilha(D); pp.composto = (m === 'composto');
+      var s = simular(D, pp);
+      CEN[m] = { K10: s.res.K10, K11: s.res.K11, sim: s };
+    });
+    if (MODO !== MODO_PLAN) {
+      var s = CEN[MODO].sim;
+      D.resumo.K10 = s.res.K10; D.resumo.K11 = s.res.K11;
+      D.resumo.texto = s.res.K11 >= 0 ? 'Saldo a favor da Enpavi (Tríade deve à Enpavi)' : 'Saldo a favor da Tríade (Enpavi deve à Tríade)';
+      D.encontro.AL = s.AL; D.encontro.AM = s.AM; D.encontro.AN = s.AN;
+      D.jurosComposto = (MODO === 'composto');
+    }
+  })();
+  var NO_PLAN = MODO === MODO_PLAN;
+  var BASE_NOME = NO_PLAN ? 'Planilha' : 'Base';
 
   // ---------------- formatação ----------------
   var nf2 = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -772,6 +830,24 @@ function parametrosDaPlanilha(D){
   document.getElementById('meta-corte').textContent = fmtDate(D.params.corte);
   document.getElementById('meta-inicio').textContent = fmtDate(D.params.inicio);
   var COMPOSTO = !!D.jurosComposto;
+  (function(){
+    var box = document.getElementById('juros-sel');
+    if (!box) return;
+    if (!D.jurosSeletor) { box.style.display = 'none'; return; }
+    var nomes = { simples: 'juros simples', composto: 'juros compostos' };
+    box.querySelectorAll('button[data-modo]').forEach(function(b){
+      var m = b.getAttribute('data-modo');
+      b.setAttribute('aria-checked', m === MODO ? 'true' : 'false');
+      var v = b.querySelector('.v'); if (v) v.textContent = 'Saldo com juros ' + fmtBRL(CEN[m].K11);
+      b.addEventListener('click', function(){
+        if (m === MODO) return;
+        window.location.href = window.location.pathname + (m === MODO_PLAN ? '' : '?juros=' + m);
+      });
+    });
+    document.getElementById('js-note').innerHTML = NO_PLAN
+      ? 'Valores com ' + nomes[MODO] + ', como está na planilha (célula C6 da PREMISSAS). Escolha a outra forma para ver o site inteiro recalculado com ela.'
+      : 'Site recalculado com <b>' + nomes[MODO] + '</b>. A planilha está com ' + nomes[MODO_PLAN] + ' (célula C6 da PREMISSAS) e não muda.';
+  })();
   document.getElementById('meta-juros').textContent = fmtPct(D.params.juros, 1) + ' ao mês (' + (D.jurosSeletor ? (COMPOSTO ? 'compostos' : 'simples') : String(D.params.formaJuros || 'simples').toLowerCase()) + ')';
   function foraDaBase(){
     var f = [];
@@ -809,7 +885,7 @@ function parametrosDaPlanilha(D){
     lab.appendChild(ic); lab.appendChild(document.createTextNode(d.t));
     box.appendChild(lab);
     box.appendChild(el('div', 'value tabular ' + (v < -0.005 ? 'critical' : (v > 0.005 ? 'good' : '')), fmtBRL(v)));
-    box.appendChild(el('div', 'note', 'Célula ' + celula(d.k) + ' da PREMISSAS'));
+    box.appendChild(el('div', 'note', (!NO_PLAN && (d.k === 'K10' || d.k === 'K11')) ? 'Calculado no site com ' + (COMPOSTO ? 'juros compostos' : 'juros simples') : 'Célula ' + celula(d.k) + ' da PREMISSAS'));
     kpiRow.appendChild(box);
   });
   var verdict = document.getElementById('verdict');
@@ -819,38 +895,29 @@ function parametrosDaPlanilha(D){
     (favEnpavi ? 'A Tríade deve ' : 'A Enpavi deve ') + '<b class="tabular">' + fmtBRL(Math.abs(R.K11)) + '</b> ' + (favEnpavi ? 'à Enpavi' : 'à Tríade') +
     ' na data de corte (' + fmtDate(D.params.corte) + '), já com ' + fmtBRL(Math.abs(R.K10)) + ' de juros.</div>';
 
-  // ---------------- 1. como funciona ----------------
+  // ---------------- 1. considerações gerais ----------------
   var pad = D.params.pctPadrao;
-  document.getElementById('como-lead').innerHTML = 'A Enpavi participa do resultado das obras em que a Tríade tem participação. Por padrão, a Enpavi fica com <b>' + fmtPct(pad) +
-    ' da parte da Tríade</b>. Como a Tríade nem sempre tem 100% da obra (nos consórcios a fatia é menor), o percentual efetivo da Enpavi é o produto dos dois. ' +
-    'Valores positivos são a favor da Enpavi; negativos, a favor da Tríade.';
-  var ex = D.linhas.filter(function(l){ return l.tipo === 'consorcio' && l.E < 1 && l.E > 0 && Math.abs(l.H) > 1000; })[0] ||
-           D.linhas.filter(function(l){ return l.tipo === 'propria'; })[0];
-  var steps = document.getElementById('steps');
-  [
-    { t: 'Resultado da obra (100%)', p: 'Entradas menos saídas do caixa da obra, pagas entre a data de início e a data de corte. Lançamentos marcados com N ficam de fora.',
-      e: ex ? ex.codigo + ' – ' + ex.descricao + ':<br><b class="tabular">' + fmtBRL(ex.H) + '</b>' : '' },
-    { t: 'Parte da Tríade', p: 'Resultado × % da Tríade na obra. Nas obras próprias a Tríade tem 100%; nos consórcios, a fatia do contrato.',
-      e: ex ? fmtBRL(ex.H) + ' × ' + fmtPct(ex.E) + ' =<br><b class="tabular">' + fmtBRL(ex.H * ex.E) + '</b>' : '' },
-    { t: 'Parte da Enpavi', p: 'Parte da Tríade × % da Enpavi sobre a parte da Tríade (padrão ' + fmtPct(pad) + '). O % efetivo é o produto dos dois percentuais.',
-      e: ex ? fmtBRL(ex.H * ex.E) + ' × ' + fmtPct(ex.F) + ' =<br><b class="tabular">' + fmtBRL(ex.H * ex.G) + '</b> (' + fmtPct(ex.G) + ' efetivo)' : '' }
-  ].forEach(function(s, i){
-    var c = el('div', 'step');
-    c.appendChild(el('div', 'n', String(i + 1)));
-    c.appendChild(el('h3', null, s.t));
-    c.appendChild(el('p', null, s.p));
-    if (s.e) { var e = el('div', 'ex'); e.innerHTML = s.e; c.appendChild(e); }
-    steps.appendChild(c);
-  });
-  var items = document.getElementById('items-grid');
-  [
-    { t: 'Além das obras', p: 'Entram também a matriz (impostos), a Usina Caçapava, as despesas Enpavi 029 (100% Enpavi) e as obras antigas (diferença Enpavi × DP Barros).' },
-    { t: 'Ajustes', p: RET_MENSAL
-        ? (ADM_MENSAL ? 'Administração central mês a mês, sobre a receita acumulada das obras. Retiradas da Enpavi no mês em que aconteceram e provisões (retenções e IR a pagar) na data de corte.' : 'Retiradas da Enpavi no mês em que aconteceram; administração central sobre a receita das obras e provisões (retenções e IR a pagar) na data de corte.')
-        : (ADM_MENSAL ? 'Administração central mês a mês, sobre a receita acumulada das obras. Retiradas já recebidas e provisões (retenções e IR a pagar) entram na data de corte.' : 'Administração central sobre a receita das obras, retiradas já recebidas e provisões (retenções e IR a pagar) na data de corte.') },
-    TEM_PAG ? { t: 'Pagamentos às empresas', p: 'Os pagamentos dos caixas às empresas Enpavi, Usinas SP e ESO marcados na aba RECEITAS entram num item próprio, 100% contra a Enpavi, na data de corte.' } : null,
-    { t: 'Juros', p: 'Sobre o saldo de cada mês corre juros ' + (COMPOSTO ? 'compostos' : 'simples') + ' de ' + fmtPct(D.params.juros, 1) + ' ao mês, da data de início até a data de corte' + (COMPOSTO ? ' (os juros acumulados também rendem juros)' : '') + '.' + (foraDaBase() ? ' ' + foraDaBase().charAt(0).toUpperCase() + foraDaBase().slice(1) + ' não entram na base dos juros.' : '') + (D.jurosSeletor ? ' A forma (simples ou composto) é escolhida na célula C6 da PREMISSAS.' : '') }
-  ].filter(function(s){ return s; }).forEach(function(s){ var c = el('div', 'item'); c.appendChild(el('div', 'it-t', s.t)); c.appendChild(el('p', null, s.p)); items.appendChild(c); });
+  document.getElementById('como-lead').innerHTML = 'O encontro de contas apura quanto a Enpavi tem a receber ou a pagar na SCP com a Tríade, da data de início (' +
+    fmtDate(D.params.inicio) + ') até a data de corte (' + fmtDate(D.params.corte) + ').';
+  (function(){
+    var desc = [];
+    if (!ADM_MENSAL) desc.push('a administração central');
+    desc.push('as provisões (retenções e IR a pagar)');
+    if (TEM_PAG) desc.push('os pagamentos às empresas Enpavi, Usinas SP e ESO');
+    var listaCorte = desc.length > 1 ? desc.slice(0, -1).join(', ') + ' e ' + desc[desc.length - 1] : desc[0];
+    var fora = foraDaBase();
+    var itensC = [
+      '<b>Participação nas obras:</b> a Enpavi fica com ' + fmtPct(pad) + ' da parte da Tríade no resultado de cada obra (entradas menos saídas dos caixas). Nos consórcios, a parte da Tríade é a fatia dela no contrato.',
+      '<b>Outros fluxos:</b> entram também a matriz (impostos), a Usina Caçapava, as despesas Enpavi 029 (100% Enpavi) e as obras antigas.',
+      '<b>Descontos:</b> ' + listaCorte + ' entram na data de corte' + (ADM_MENSAL ? '; a administração central entra mês a mês' : '') +
+        (RET_MENSAL ? '; as retiradas da Enpavi entram no mês em que aconteceram.' : '; as retiradas da Enpavi também entram na data de corte.'),
+      '<b>Juros:</b> ' + (COMPOSTO ? 'compostos' : 'simples') + ', de ' + fmtPct(D.params.juros, 1) + ' ao mês sobre o saldo de cada mês' + (fora ? ', sem ' + fora : '') + '.' +
+        (D.jurosSeletor ? ' A forma é escolhida no seletor acima.' : ''),
+      '<b>Sinal:</b> valores positivos são a favor da Enpavi; negativos, a favor da Tríade.'
+    ];
+    var ul = document.getElementById('consid');
+    itensC.forEach(function(h){ var li = el('li'); li.innerHTML = h; ul.appendChild(li); });
+  })();
 
   // ---------------- 2. parâmetros ----------------
   var params = document.getElementById('params');
@@ -863,7 +930,7 @@ function parametrosDaPlanilha(D){
       if (!ADM_MENSAL) it.push('a adm. central');
       return (it.length > 1 ? it.slice(0, -1).join(', ') + ' e ' + it[it.length - 1] : it[0]) + ' entram neste mês.';
     })() },
-    { l: 'Juros ao mês', v: fmtPct(D.params.juros, 1), p: 'Taxa fixa, juros ' + (COMPOSTO ? 'compostos' : 'simples') + ': juros do mês = (' + ['saldo sem juros do mês'].concat(D.jurosSemRetiradas ? ['retiradas'] : []).concat(D.jurosSemProvisoes ? ['provisões'] : []).join(' − ') + (COMPOSTO ? ' + juros acumulados até o mês anterior' : '') + ') × taxa.' + (D.jurosSeletor ? ' Simples ou composto: célula C6 da PREMISSAS.' : '') },
+    { l: 'Juros ao mês', v: fmtPct(D.params.juros, 1), p: 'Taxa fixa, juros ' + (COMPOSTO ? 'compostos' : 'simples') + ': juros do mês = (' + ['saldo sem juros do mês'].concat(D.jurosSemRetiradas ? ['retiradas'] : []).concat(D.jurosSemProvisoes ? ['provisões'] : []).join(' − ') + (COMPOSTO ? ' + juros acumulados até o mês anterior' : '') + ') × taxa.' + (D.jurosSeletor ? ' Simples ou composto: seletor no topo do site (na planilha, célula C6).' : '') },
     { l: '% Enpavi padrão', v: fmtPct(pad), p: 'Percentual da Enpavi sobre a parte da Tríade, usado nas linhas que não têm percentual próprio.' }
   ].forEach(function(x){
     var c = el('div', 'param'); c.appendChild(el('div', 'p-l', x.l)); c.appendChild(el('div', 'p-v tabular', x.v)); c.appendChild(el('p', null, x.p)); params.appendChild(c);
@@ -1183,7 +1250,12 @@ function parametrosDaPlanilha(D){
   }
   function legend(box, series){
     box.innerHTML = '';
-    series.forEach(function(s){ var it = el('div', 'legend-item'), sw = el('span', 'swatch'); sw.style.background = s.color; if (s.dash) { sw.style.background = 'transparent'; sw.style.border = '2px dashed ' + s.color; } it.appendChild(sw); it.appendChild(document.createTextNode(s.name)); box.appendChild(it); });
+    series.forEach(function(s){
+      var it = el('div', 'legend-item');
+      var svg = sv('svg', { width: 30, height: 10, viewBox: '0 0 30 10', 'class': 'swatch-line', 'aria-hidden': 'true' });
+      svg.appendChild(sv('line', { x1: 1, y1: 5, x2: 29, y2: 5, stroke: s.color, 'stroke-width': s.width || 2.5, 'stroke-dasharray': s.dash || '', 'stroke-linecap': 'round' }));
+      it.appendChild(svg); it.appendChild(document.createTextNode(s.name)); box.appendChild(it);
+    });
   }
 
   // ---------------- 7. mês a mês ----------------
@@ -1206,10 +1278,14 @@ function parametrosDaPlanilha(D){
     })() + ' Escolha o mês abaixo (ou clique no gráfico ou numa linha da tabela) para ver os valores daquele mês.';
   var lineSeries = [
     { name: 'Saldo sem juros', color: cssVar('--cat-1') || '#2a78d6', values: EN.AJ },
-    { name: 'Juros acumulados', color: cssVar('--accent') || '#b5661a', values: EN.AM, dash: '6 4' },
+    { name: 'Juros acumulados (linha tracejada)', color: cssVar('--accent') || '#b5661a', values: EN.AM, dash: '6 4' },
     { name: 'Saldo com juros', color: cssVar('--critical') || '#b3261e', values: EN.AN, width: 3 }
   ];
   legend(document.getElementById('line-legend'), lineSeries);
+  (function(){
+    var nota = el('div', 'legend-nota', 'A linha tracejada mostra quanto de juros já se acumulou até cada mês. Saldo com juros = saldo sem juros + juros acumulados.');
+    document.getElementById('line-legend').appendChild(nota);
+  })();
   (function(){
     var body = document.getElementById('month-body'), wrap = document.getElementById('month-wrap');
     var sel = document.getElementById('mp-select'), cards = document.getElementById('mp-kpis');
@@ -1280,8 +1356,8 @@ function parametrosDaPlanilha(D){
   // ---------------- 8. simulador ----------------
   var base = parametrosDaPlanilha(D);
   var sim = JSON.parse(JSON.stringify(base));
-  var conf = simular(D, base);
-  var maxDiff = KEYS.reduce(function(m, k){ return Math.max(m, Math.abs(conf.res[k] - R[k])); }, 0);
+  var maxDiff = CHECK_PLAN;
+  var thBase = document.getElementById('s-th-base'); if (thBase) thBase.textContent = BASE_NOME;
   var chk = document.getElementById('s-check');
   if (maxDiff <= 0.01) { chk.className = 'check'; chk.textContent = 'Conferido: com os valores da planilha, o simulador reproduz o resumo K4–K11 (diferença máxima ' + fmtBRL(maxDiff) + ').'; }
   else { chk.className = 'check bad'; chk.textContent = 'Atenção: com os valores da planilha, o simulador difere do resumo em até ' + fmtBRL(maxDiff) + '. A planilha pode ter mudado de estrutura; confira antes de usar a simulação.'; }
@@ -1358,7 +1434,7 @@ function parametrosDaPlanilha(D){
       td.parentNode.classList.toggle('off', !d.on);
     });
     var ss = [
-      { name: 'Planilha – saldo com juros', color: cssVar('--muted') || '#8d8574', values: EN.AN, dash: '6 4' },
+      { name: BASE_NOME + ' – saldo com juros (linha tracejada)', color: cssVar('--muted') || '#8d8574', values: EN.AN, dash: '6 4' },
       { name: 'Simulação – saldo com juros', color: cssVar('--accent') || '#b5661a', values: s.AN, width: 3 }
     ];
     legend(document.getElementById('s-legend'), ss);
