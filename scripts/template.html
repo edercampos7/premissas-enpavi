@@ -847,7 +847,7 @@ function parametrosDaPlanilha(D){
     var fora = foraDaBase();
     var itensC = [
       '<b>Participação nas obras:</b> a Enpavi fica com ' + fmtPct(pad) + ' da parte da Tríade no resultado de cada obra (entradas menos saídas dos caixas). Nos consórcios, a parte da Tríade é a fatia dela no contrato.',
-      '<b>Outros fluxos:</b> entram também a matriz (impostos), a Usina Caçapava, as despesas Enpavi 029 (100% Enpavi) e as obras antigas.',
+      '<b>Outros fluxos:</b> entram também a matriz (impostos), a Usina Caçapava' + (D.params.usinaFim ? ' (até ' + fmtDate(D.params.usinaFim) + ', quando foi encerrada)' : '') + ', as despesas Enpavi 029 (100% Enpavi) e as obras antigas.',
       '<b>Descontos:</b> ' + listaCorte + ' entram na data de corte' + (ADM_MENSAL ? '; a administração central entra mês a mês' : '') +
         (RET_MENSAL ? '; as retiradas da Enpavi entram no mês em que aconteceram.' : '; as retiradas da Enpavi também entram na data de corte.'),
       '<b>Juros:</b> ' + (COMPOSTO ? 'compostos' : 'simples') + ', de ' + fmtPct(D.params.juros, 1) + ' ao mês sobre o saldo de cada mês' + (fora ? ', sem ' + fora : '') + '.' +
@@ -995,13 +995,15 @@ function parametrosDaPlanilha(D){
     c.appendChild(el('p', null, texto));
     outros.appendChild(c);
   }
+  var FLUXO_US = D.params.usinaFim ? 'Fluxo da usina até ' + fmtDate(D.params.usinaFim) + ', quando foi encerrada (aba CAÇAPAV, extraída do Dashboard da usina)' : 'Fluxo completo da usina (aba CAÇAPAV, extraída do Dashboard da usina)';
+  var ENTRA_US = D.params.usinaFim ? 'Entra mês a mês até o encerramento; depois o resultado fica fixo e continua com juros, como as obras.' : 'Entra mês a mês e corre juros, como as obras.';
   D.linhas.filter(function(l){ return l.tipo === 'usina'; }).forEach(function(l){
     miniCard('Usina Caçapava', 'Parte Enpavi · ' + fmtPct(l.G) + ' efetivo', l.H, l.J,
       (function(){
         var su = 0; (D.retiradasUsina || []).forEach(function(v, k){ if (k <= D.corteIdx) su += v || 0; });
         return Math.abs(su) > 0.005
-          ? 'Fluxo completo da usina (aba CAÇAPAV, extraída do Dashboard da usina): faturamento menos custos e retiradas do consórcio. As retiradas da Enpavi (' + fmtBRL(Math.abs(su)) + ') saíram do fluxo da usina (débito zerado) e entram nas Retiradas (item 6). Entra mês a mês e corre juros, como as obras.'
-          : 'Fluxo completo da usina (aba CAÇAPAV, extraída do Dashboard da usina): faturamento menos custos e retiradas. Entra mês a mês e corre juros, como as obras.';
+          ? FLUXO_US + ': faturamento menos custos e retiradas do consórcio. As retiradas da Enpavi (' + fmtBRL(Math.abs(su)) + ') saíram do fluxo da usina (débito zerado) e entram nas Retiradas (item 6). ' + ENTRA_US
+          : FLUXO_US + ': faturamento menos custos e retiradas. ' + ENTRA_US;
       })());
   });
   D.linhas.filter(function(l){ return l.tipo === 'c029'; }).forEach(function(l){

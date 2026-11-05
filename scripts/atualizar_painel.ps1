@@ -15,9 +15,6 @@ param(
     [string]$ProjectDir = (Split-Path -Parent $PSScriptRoot)
 )
 $ErrorActionPreference = 'Stop'
-# 04/11/2026: site desativado a pedido do Eder. O gerador não faz mais nada (o index.html fica com o aviso de desativado).
-Write-Host 'Site desativado em 04/11/2026: nada a gerar.'
-return
 # Windows PowerShell 5.1: sem isto o ConvertTo-Json grava as listas como {"value":[...],"Count":n}
 try { Remove-TypeData -TypeName System.Array -ErrorAction Stop } catch { }
 $utf8 = New-Object System.Text.UTF8Encoding($false)
@@ -147,6 +144,9 @@ $params = [ordered]@{
     inicio = Iso (CV $P 'C3'); corte = Iso (CV $P 'C4')
     juros = Num (CV $P 'C5'); formaJuros = CV $P 'C6'; pctPadrao = Num (CV $P 'C7'); meses = Num (CV $P 'C8')
 }
+# data de encerramento da Usina Caçapava (PREMISSAS A9/C9), se existir
+$params['usinaFim'] = $null
+if ((Norm (CV $P 'A9')).StartsWith('ENCERRAMENTO DA USINA')) { $params['usinaFim'] = Iso (CV $P 'C9') }
 if (-not $params.corte) { throw "PREMISSAS ENPAVI!C4 (data de corte) está vazia ou sem valor calculado." }
 # resumo: chaves fixas (K4 obras ... K7 retiradas, K8 provisões, K9 sem juros, K10 juros, K11 com juros);
 # se a linha 8 for "Pagamentos às empresas..." (item novo de 03/11/2026), ela vira a chave KP e as seguintes descem uma linha
