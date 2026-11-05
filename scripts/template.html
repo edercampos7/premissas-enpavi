@@ -571,7 +571,7 @@
       <div class="sim-res">
         <div class="table-wrap">
           <table>
-            <thead><tr><th class="static">Resumo</th><th class="static num" id="s-th-base">Planilha</th><th class="static num">Simulação</th><th class="static num">Diferença</th></tr></thead>
+            <thead><tr><th class="static">Resumo</th><th class="static num" id="s-th-base">Planilha</th><th class="static num">Simulação</th></tr></thead>
             <tbody id="s-res"></tbody>
           </table>
         </div>
@@ -1368,9 +1368,9 @@ function parametrosDaPlanilha(D){
       var tr = el('tr', k === 'K11' ? 'total' : (k === 'K9' ? 'sub' : ''));
       tr.appendChild(el('td', null, resLabels[k]));
       tr.appendChild(el('td', 'num tabular ' + sgn(R[k]), fmtBRL(R[k])));
-      tr.appendChild(el('td', 'num tabular ' + sgn(s.res[k]), fmtBRL(s.res[k])));
-      var d = s.res[k] - R[k];
-      tr.appendChild(el('td', 'num tabular ' + sgn(d), Math.abs(d) < 0.005 ? '—' : (d > 0 ? '+' : '') + fmtBRL(d)));
+      // diferença de centavos é só arredondamento: mostra o valor da planilha
+      var vs = Math.abs(s.res[k] - R[k]) < 0.05 ? R[k] : s.res[k];
+      tr.appendChild(el('td', 'num tabular ' + sgn(vs), fmtBRL(vs)));
       body.appendChild(tr);
     });
     D.linhas.forEach(function(l){
