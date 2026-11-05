@@ -590,7 +590,7 @@
         <li><b>Usina Caçapava × PROCESSOS E RETIRADAS ENPAVI:</b> diferença de R$ 109.999,98 até 30/09/2026 (R$ 86.666,65 até 31/08/2026) nas retiradas da Enpavi lançadas no Dashboard da usina (que agora entram nas Retiradas, item 6).</li>
         <li><b>DER:</b> receita calculada das obras 01, 02, 09 e 15 (R$ 61,8 mi) × valor usado antes (R$ 90,9 mi).</li>
         <li><b>OBRA 06:</b> confirmar o % Tríade de 100% no consórcio DT PR 445.</li>
-        <li><b>Obras antigas:</b> hoje entram 100% da diferença Enpavi × DP Barros.</li>
+        <li id="aberto-antigas"><b>Obras antigas:</b> hoje entram 100% da diferença Enpavi × DP Barros.</li>
         <li><b>Matriz:</b> ISS do DT PR (R$ 1,26 mi desde 10/2022) e IRPJ/CSLL de 2026 não aparecem na CUSTO MATRIZ.</li>
       </ul>
     </div>
@@ -1199,6 +1199,16 @@ function parametrosDaPlanilha(D){
       it.appendChild(svg); it.appendChild(document.createTextNode(s.name)); box.appendChild(it);
     });
   }
+
+  (function(){
+    var li = document.getElementById('aberto-antigas'); if (!li) return;
+    var gs = D.linhas.filter(function(l){ return l.tipo === 'antiga'; }).map(function(l){ return l.G; });
+    if (!gs.length) return;
+    var igual = gs.every(function(g){ return Math.abs(g - gs[0]) < 1e-9; });
+    li.innerHTML = '<b>Obras antigas:</b> ' + (igual
+      ? 'entram ' + fmtPct(gs[0]) + ' da diferença Enpavi × DP Barros' + (Math.abs(gs[0] - 0.5) < 1e-9 ? ' (a parte da Enpavi numa sociedade meio a meio: metade da diferença iguala os dois lados).' : '.')
+      : 'entram com percentuais diferentes por obra (' + D.linhas.filter(function(l){ return l.tipo === 'antiga'; }).map(function(l){ return l.descricao + ' ' + fmtPct(l.G); }).join(', ') + ').');
+  })();
 
   // ---------------- 7. mês a mês ----------------
   var EN = D.encontro, cut = D.corteIdx;
