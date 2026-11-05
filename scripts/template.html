@@ -583,7 +583,6 @@
     <div class="card">
       <ul class="open-list">
         <li id="aberto-ret"><b>Retiradas Enpavi:</b> definir se os pagamentos dos caixas à Enpavi, Usinas SP e ESO entram no encontro, e com qual percentual (eles já são despesa nos caixas das obras).</li>
-        <li><b>Usina Caçapava × PROCESSOS E RETIRADAS ENPAVI:</b> diferença de R$ 109.999,98 até 30/09/2026 (R$ 86.666,65 até 31/08/2026) nas retiradas da Enpavi lançadas no Dashboard da usina (que agora entram nas Retiradas, item 6).</li>
         <li id="aberto-antigas"><b>Obras antigas:</b> hoje entram 100% da diferença Enpavi × DP Barros.</li>
         <li><b>Matriz:</b> ISS do DT PR (R$ 1,26 mi desde 10/2022) e IRPJ/CSLL de 2026 não aparecem na CUSTO MATRIZ.</li>
       </ul>
@@ -1056,12 +1055,12 @@ function parametrosDaPlanilha(D){
     var mDig = mesesDe(digS), mUs = mesesDe(usinaS), meses = mesesDe(D.retiradasMes);
     var partes = [];
     if (mDig.length) partes.push(descSerie(mDig) + ' (coluna ' + (D.retiradasColuna || 'AO') + ' da ENCONTRO)');
-    if (mUs.length) partes.push(descSerie(mUs).replace(/^retiradas/, 'retiradas lançadas no fluxo da Usina Caçapava') + ' (aba CAÇAPAV, com o débito zerado; coluna AQ da ENCONTRO)');
+    if (mUs.length) partes.push(descSerie(mUs).replace(/^retiradas/, 'retiradas e processos da Enpavi pagos pela Usina Caçapava') + ' (planilha PROCESSOS E RETIRADAS ENPAVI; coluna AQ da ENCONTRO)');
     var descMes = partes.length > 1 ? partes.map(function(x, k){ return '(' + (k + 1) + ') ' + x; }).join('; ') : (partes[0] || '');
     // versão curta (pontos de observação): sem as referências de colunas e abas
     var curtas = [];
     if (mDig.length) curtas.push(descSerie(mDig));
-    if (mUs.length) curtas.push(descSerie(mUs).replace(/^retiradas/, 'retiradas lançadas no fluxo da Usina Caçapava'));
+    if (mUs.length) curtas.push(descSerie(mUs).replace(/^retiradas/, 'retiradas e processos da Enpavi pagos pela Usina Caçapava'));
     var descCurta = curtas.length > 1 ? curtas.map(function(x, k){ return '(' + (k + 1) + ') ' + x; }).join('; ') : (curtas[0] || '');
     if (ret && meses.length) {
       var resto = ret.H - meses.reduce(function(s, x){ return s + x[1]; }, 0);
