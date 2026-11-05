@@ -1002,6 +1002,8 @@ function parametrosDaPlanilha(D){
     miniCard('Usina Caçapava', 'Parte Enpavi · ' + fmtPct(l.G) + ' efetivo', l.H, l.J,
       (function(){
         var su = 0; (D.retiradasUsina || []).forEach(function(v, k){ if (k <= D.corteIdx) su += v || 0; });
+        if (D.params.usinaFim && Math.abs(su) > 0.005)
+          return 'Fluxo da usina até ' + fmtDate(D.params.usinaFim) + ', quando foi encerrada. As retiradas da Enpavi (' + fmtBRL(Math.abs(su)) + ') saíram do fluxo da usina (débito zerado) e entram nas Retiradas Enpavi.';
         return Math.abs(su) > 0.005
           ? FLUXO_US + ': faturamento menos custos e retiradas do consórcio. As retiradas da Enpavi (' + fmtBRL(Math.abs(su)) + ') saíram do fluxo da usina (débito zerado) e entram nas Retiradas (item 6). ' + ENTRA_US
           : FLUXO_US + ': faturamento menos custos e retiradas. ' + ENTRA_US;
