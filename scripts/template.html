@@ -710,6 +710,8 @@ function parametrosDaPlanilha(D){
 (function(){
   "use strict";
   var D = desembrulhar(JSON.parse(document.getElementById('site-data').textContent));
+  // descrições sem os parênteses que citam abas, colunas ou planilhas do Excel
+  (D.linhas || []).forEach(function(l){ if (typeof l.descricao === 'string') l.descricao = l.descricao.replace(/\s*\([^)]*\b(aba|abas|coluna|planilha)\b[^)]*\)/gi, '').trim(); });
   var TEM_PAG = typeof (D.resumo || {}).KP === 'number';
   var KEYS = ['K4','K5','K6','K7'].concat(TEM_PAG ? ['KP'] : []).concat(['K8','K9','K10','K11']);
   function celula(k){ return ((D.resumo || {}).celulas || {})[k] || k; }
