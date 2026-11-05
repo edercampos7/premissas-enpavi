@@ -518,14 +518,10 @@
   <section id="sec-retiradas">
     <div class="section-head"><h2><span class="num">6</span>Retiradas Enpavi</h2><div class="desc">Pagamentos dos caixas às empresas Enpavi, Usinas SP e ESO</div></div>
     <p class="lead" id="ret-lead"></p>
-    <div class="grid-2">
-      <div class="card"><div class="legend" id="ret-legend"></div><div id="ret-empresas"></div></div>
-      <div class="card"><div id="ret-abas"></div></div>
-    </div>
   </section>
 
   <section id="sec-mensal">
-    <div class="section-head"><h2><span class="num">7</span>Encontro de contas mês a mês</h2><div class="desc">Aba ENCONTRO ENPAVI: saldo acumulado e juros simples</div></div>
+    <div class="section-head"><h2><span class="num">7</span>Encontro de contas mês a mês</h2><div class="desc" id="mensal-desc">Aba ENCONTRO ENPAVI: saldo acumulado e juros simples</div></div>
     <p class="lead" id="mensal-lead"></p>
     <div class="month-pick">
       <label class="mp-label" for="mp-select">Mês de visualização</label>
@@ -1086,39 +1082,6 @@ function parametrosDaPlanilha(D){
     else if (ab && ret) ab.innerHTML = '<b>Retiradas Enpavi:</b> ' + (Math.abs(ret.H) > 0.5
       ? 'a linha entra hoje com <span class="tabular">' + fmtBRL(ret.H) + '</span> (' + fmtPct(ret.G) + ' para a Enpavi). Confirmar o valor e o percentual, já que esses pagamentos também são despesa nos caixas das obras.'
       : 'a linha está na planilha, mas hoje entra com valor zero. Definir se os pagamentos dos caixas à Enpavi, Usinas SP e ESO entram no encontro, e com qual percentual (eles já são despesa nos caixas das obras).');
-    if (!rc || !rc.totalAba) { document.getElementById('ret-empresas').parentNode.parentNode.style.display = 'none'; return; }
-    var emp = [['Enpavi', rc.totalAba.enpavi, 'var(--cat-1)'], ['Usinas SP', rc.totalAba.usinas, 'var(--cat-4)'], ['ESO Assessoria', rc.totalAba.eso, 'var(--cat-5)']];
-    var lg = document.getElementById('ret-legend');
-    lg.appendChild(el('div', 'legend-item', 'Por empresa'));
-    var box = document.getElementById('ret-empresas');
-    var maxE = Math.max.apply(null, emp.map(function(e){ return e[1]; }).concat([1]));
-    emp.forEach(function(e){
-      var r = el('div', 'rankbar-row');
-      r.appendChild(el('div', 'rb-label', e[0]));
-      var t = el('div', 'rankbar-track'), f = el('div', 'rankbar-fill'); f.style.width = (e[1] / maxE * 100) + '%'; f.style.background = e[2]; t.appendChild(f); r.appendChild(t);
-      var v = el('div', 'rb-value tabular', fmtMi(e[1])); v.appendChild(el('div', 'rb-pct', fmtPct(e[1] / rc.totalAba.total, 1))); r.appendChild(v);
-      box.appendChild(r);
-    });
-    var box2 = document.getElementById('ret-abas');
-    box2.appendChild(el('div', 'legend-item', 'Por aba de origem'));
-    var abas = rc.porAba.slice().sort(function(a, b){ return b.total - a.total; });
-    var maxA = Math.max.apply(null, abas.map(function(a){ return a.total; }).concat([1]));
-    abas.forEach(function(a){
-      var r = el('div', 'rankbar-row');
-      r.appendChild(el('div', 'rb-label', a.aba));
-      var t = el('div', 'rankbar-track');
-      var x = 0;
-      [['enpavi', 'var(--cat-1)'], ['usinas', 'var(--cat-4)'], ['eso', 'var(--cat-5)']].forEach(function(k){
-        var w = a[k[0]] / maxA * 100; if (w <= 0) return;
-        var f = el('div', 'rankbar-fill'); f.style.left = x + '%'; f.style.width = w + '%'; f.style.background = k[1]; f.style.borderRadius = '0'; t.appendChild(f); x += w;
-      });
-      r.appendChild(t);
-      r.appendChild(el('div', 'rb-value tabular', fmtMi(a.total)));
-      r.addEventListener('mousemove', function(e){ showTip(e.clientX, e.clientY, '<div class="t-val">' + fmtBRL(a.total) + '</div><div class="t-key">' + esc(a.aba) + ' · ' + a.qtd + ' lançamentos</div>' +
-        '<div class="t-row"><span>Enpavi</span><span>' + fmtBRL(a.enpavi) + '</span></div><div class="t-row"><span>Usinas SP</span><span>' + fmtBRL(a.usinas) + '</span></div><div class="t-row"><span>ESO</span><span>' + fmtBRL(a.eso) + '</span></div>'); });
-      r.addEventListener('mouseleave', hideTip);
-      box2.appendChild(r);
-    });
   })();
 
   // ---------------- gráfico de linhas (SVG) ----------------
@@ -1214,6 +1177,7 @@ function parametrosDaPlanilha(D){
 
   // ---------------- 7. mês a mês ----------------
   var EN = D.encontro, cut = D.corteIdx;
+  (function(){ var dsc = document.getElementById('mensal-desc'); if (dsc) dsc.textContent = 'Aba ENCONTRO ENPAVI: saldo acumulado e juros ' + (COMPOSTO ? 'compostos' : 'simples'); })();
   var first = 0;
   for (var i0 = 0; i0 <= cut; i0++) { if (Math.abs(EN.AJ[i0]) > 0.5 || Math.abs(EN.AM[i0]) > 0.5) { first = Math.max(0, i0 - 1); break; } }
   document.getElementById('mensal-lead').innerHTML = 'Para cada mês, a planilha soma o resultado acumulado de cada fluxo até aquele mês (já multiplicado pelo % da Enpavi) e calcula os juros do mês sobre esse saldo. ' +
