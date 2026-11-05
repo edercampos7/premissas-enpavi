@@ -1058,6 +1058,11 @@ function parametrosDaPlanilha(D){
     if (mDig.length) partes.push(descSerie(mDig) + ' (coluna ' + (D.retiradasColuna || 'AO') + ' da ENCONTRO)');
     if (mUs.length) partes.push(descSerie(mUs).replace(/^retiradas/, 'retiradas lançadas no fluxo da Usina Caçapava') + ' (aba CAÇAPAV, com o débito zerado; coluna AQ da ENCONTRO)');
     var descMes = partes.length > 1 ? partes.map(function(x, k){ return '(' + (k + 1) + ') ' + x; }).join('; ') : (partes[0] || '');
+    // versão curta (pontos de observação): sem as referências de colunas e abas
+    var curtas = [];
+    if (mDig.length) curtas.push(descSerie(mDig));
+    if (mUs.length) curtas.push(descSerie(mUs).replace(/^retiradas/, 'retiradas lançadas no fluxo da Usina Caçapava'));
+    var descCurta = curtas.length > 1 ? curtas.map(function(x, k){ return '(' + (k + 1) + ') ' + x; }).join('; ') : (curtas[0] || '');
     if (ret && meses.length) {
       var resto = ret.H - meses.reduce(function(s, x){ return s + x[1]; }, 0);
       txt = 'A linha <b>RETIRADAS ENPAVI</b> da PREMISSAS entra com <b class="tabular">' + fmtBRL(ret.H) + '</b>, ' + fmtPct(ret.G) + ' contra a Enpavi: ' + descMes +
@@ -1074,9 +1079,9 @@ function parametrosDaPlanilha(D){
     else if (!meses.length && rc && rc.totalAba) txt += ' Os caixas das obras pagaram <b class="tabular">' + fmtBRL(rc.totalAba.total) + '</b> às empresas Enpavi, Usinas SP e ESO (aba RECEITAS ENPAVI-USINAS SP-ESO). Esses pagamentos já são despesa nos caixas das obras.';
     lead.innerHTML = txt;
     var ab = document.getElementById('aberto-ret');
-    if (ab && ret && meses.length) ab.innerHTML = '<b>Retiradas Enpavi:</b> entram ' + fmtPct(ret.G) + ' contra a Enpavi' + (D.jurosSemRetiradas ? ', sem juros' : '') + ': ' + descMes + '. ' + (TEM_PAG
+    if (ab && ret && meses.length) ab.innerHTML = '<b>Retiradas Enpavi:</b> entram ' + fmtPct(ret.G) + ' contra a Enpavi' + (D.jurosSemRetiradas ? ', sem juros' : '') + ': ' + descCurta + '. ' + (TEM_PAG
       ? 'Os pagamentos às empresas Enpavi, Usinas SP e ESO da aba RECEITAS (<span class="tabular">' + fmtBRL(R.KP) + '</span>) entram em item próprio. Confirmar se esses lançamentos devem sair dos caixas ' + (abasPag().length ? '(' + abasPag().join(', ') + ') ' : '') + 'onde hoje também são despesa, como foi feito na CAÇAPAV.'
-      : 'Os pagamentos dos caixas à Enpavi, Usinas SP e ESO (aba RECEITAS) seguem fora, porque já são despesa nos caixas das obras.');
+      : 'Os pagamentos dos caixas à Enpavi, Usinas SP e ESO seguem fora, porque já são despesa nos caixas das obras.');
     else if (ab && ret) ab.innerHTML = '<b>Retiradas Enpavi:</b> ' + (Math.abs(ret.H) > 0.5
       ? 'a linha entra hoje com <span class="tabular">' + fmtBRL(ret.H) + '</span> (' + fmtPct(ret.G) + ' para a Enpavi). Confirmar o valor e o percentual, já que esses pagamentos também são despesa nos caixas das obras.'
       : 'a linha está na planilha, mas hoje entra com valor zero. Definir se os pagamentos dos caixas à Enpavi, Usinas SP e ESO entram no encontro, e com qual percentual (eles já são despesa nos caixas das obras).');
