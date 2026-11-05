@@ -1196,7 +1196,7 @@ function parametrosDaPlanilha(D){
     })() + ' Escolha o mês abaixo (ou clique no gráfico ou numa linha da tabela) para ver os valores daquele mês.';
   var lineSeries = [
     { name: 'Saldo sem juros', color: cssVar('--cat-1') || '#2a78d6', values: EN.AJ },
-    { name: 'Juros acumulados (linha tracejada)', color: cssVar('--accent') || '#b5661a', values: EN.AM, dash: '6 4' },
+    { name: 'Juros acumulados', color: cssVar('--accent') || '#b5661a', values: EN.AM, dash: '6 4' },
     { name: 'Saldo com juros', color: cssVar('--critical') || '#b3261e', values: EN.AN, width: 3 }
   ];
   legend(document.getElementById('line-legend'), lineSeries);
@@ -1345,7 +1345,7 @@ function parametrosDaPlanilha(D){
       td.parentNode.classList.toggle('off', !d.on);
     });
     var ss = [
-      { name: BASE_NOME + ' – saldo com juros (linha tracejada)', color: cssVar('--muted') || '#8d8574', values: EN.AN, dash: '6 4' },
+      { name: BASE_NOME + ' – saldo com juros', color: cssVar('--muted') || '#8d8574', values: EN.AN, dash: '6 4' },
       { name: 'Simulação – saldo com juros', color: cssVar('--accent') || '#b5661a', values: s.AN, width: 3 }
     ];
     legend(document.getElementById('s-legend'), ss);
