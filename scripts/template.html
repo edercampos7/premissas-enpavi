@@ -615,7 +615,7 @@ function grupoLiga(tipo){
 function simular(D, p){
   var n = D.meses.length, c = p.corteIdx, i, m;
   function zeros(){ var a = new Array(n); for (var k = 0; k < n; k++) a[k] = 0; return a; }
-  var AD = zeros(), AE = zeros(), AF = zeros(), AH = zeros(), AI = zeros(), AP = zeros(), AJ = zeros(), AL = zeros(), AM = zeros(), AN = zeros();
+  var AD = zeros(), AE = zeros(), AF = zeros(), AH = zeros(), AI = zeros(), AP = zeros(), ADMJ = zeros(), AJ = zeros(), AL = zeros(), AM = zeros(), AN = zeros();
   var startKey = (D.params.inicio || D.meses[0]).slice(0, 7);
   var cutKey = D.meses[c].slice(0, 7);
   var porLinha = {};
@@ -653,9 +653,9 @@ function simular(D, p){
               if (pt.linhaE) fm = val(p.E, pt.linhaE, (porLinha[pt.linhaE] || { E: 1 }).E);
               bm += rm * fm;
             });
-            AD[m] += -bm * E * G;
+            AD[m] += -bm * E * G; ADMJ[m] += -bm * E * G;
           }
-        } else { g = gateIdx(l.data); for (m = g; m <= c; m++) AD[m] += H * G; }
+        } else { g = gateIdx(l.data); for (m = g; m <= c; m++) { AD[m] += H * G; ADMJ[m] += H * G; } }
       }
       detalhe[l.linha] = { base: base };
     } else if (l.tipo === 'retirada') {
@@ -689,7 +689,7 @@ function simular(D, p){
     AJ[m] = AD[m] + AE[m] + AF[m] + (AG[m] || 0) + AH[m] + AI[m] + AP[m];
     // base dos juros: saldo do mês sem retiradas / provisões (se a planilha faz assim) + juros acumulados (só no composto)
     AL[m] = D.meses[m].slice(0, 7) >= startKey
-      ? (AJ[m] - (D.jurosSemRetiradas ? AH[m] + (AG[m] || 0) : 0) - (D.jurosSemProvisoes ? AI[m] : 0) + (p.composto ? acc : 0)) * p.juros : 0;
+      ? (AJ[m] - (D.jurosSemRetiradas ? AH[m] + (AG[m] || 0) : 0) - (D.jurosSemProvisoes ? AI[m] : 0) - (D.jurosSemAdm ? ADMJ[m] : 0) + (p.composto ? acc : 0)) * p.juros : 0;
     acc += AL[m]; AM[m] = acc; AN[m] = AJ[m] + AM[m];
   }
   var res = { K4: AD[c], K5: AE[c], K6: AF[c], K7: (AG[c] || 0) + AH[c], K8: AI[c], K9: AJ[c], K10: AM[c], K11: AN[c] };
@@ -792,7 +792,8 @@ function parametrosDaPlanilha(D){
     var f = [];
     if (D.jurosSemRetiradas) f.push('as retiradas');
     if (D.jurosSemProvisoes) f.push('as provisões');
-    return f.length ? f.join(' e ') : '';
+    if (D.jurosSemAdm) f.push('a administração central');
+    return f.length > 1 ? f.slice(0, -1).join(', ') + ' e ' + f[f.length - 1] : (f[0] || '');
   }
   document.getElementById('meta-salva').textContent = D.meta.planilhaSalvaEm;
   document.getElementById('footer-file').textContent = D.meta.sourceFile;
@@ -869,7 +870,7 @@ function parametrosDaPlanilha(D){
       if (!ADM_MENSAL) it.push('a adm. central');
       return (it.length > 1 ? it.slice(0, -1).join(', ') + ' e ' + it[it.length - 1] : it[0]) + ' entram neste mês.';
     })() },
-    { l: 'Juros ao mês', v: fmtPct(D.params.juros, 1), p: 'Taxa fixa, juros ' + (COMPOSTO ? 'compostos' : 'simples') + ': juros do mês = (' + ['saldo sem juros do mês'].concat(D.jurosSemRetiradas ? ['retiradas'] : []).concat(D.jurosSemProvisoes ? ['provisões'] : []).join(' − ') + (COMPOSTO ? ' + juros acumulados até o mês anterior' : '') + ') × taxa.' },
+    { l: 'Juros ao mês', v: fmtPct(D.params.juros, 1), p: 'Taxa fixa, juros ' + (COMPOSTO ? 'compostos' : 'simples') + ': juros do mês = (' + ['saldo sem juros do mês'].concat(D.jurosSemRetiradas ? ['retiradas'] : []).concat(D.jurosSemProvisoes ? ['provisões'] : []).concat(D.jurosSemAdm ? ['adm. central'] : []).join(' − ') + (COMPOSTO ? ' + juros acumulados até o mês anterior' : '') + ') × taxa.' },
     { l: '% Enpavi padrão', v: fmtPct(pad), p: 'Percentual da Enpavi sobre a parte da Tríade, usado nas linhas que não têm percentual próprio.' }
   ].forEach(function(x){
     var c = el('div', 'param'); c.appendChild(el('div', 'p-l', x.l)); c.appendChild(el('div', 'p-v tabular', x.v)); c.appendChild(el('p', null, x.p)); params.appendChild(c);
@@ -1262,7 +1263,7 @@ function parametrosDaPlanilha(D){
         temPag ? { t: 'Pagamentos às empresas', v: PAG[i] || 0, n: i === cut ? 'Entram no mês de corte' : 'Só no mês de corte' } : null,
         { t: 'Provisões', v: EN.AI[i], n: i === cut ? 'Entram no mês de corte' : 'Só no mês de corte' },
         { t: 'Saldo sem juros', v: EN.AJ[i], n: 'Soma do mês', hl: true },
-        { t: 'Juros do mês', v: EN.AL[i], n: (D.jurosSemRetiradas || D.jurosSemProvisoes || COMPOSTO ? '(' + ['Saldo sem juros'].concat(D.jurosSemRetiradas ? ['retiradas'] : []).concat(D.jurosSemProvisoes ? ['provisões'] : []).join(' − ') + (COMPOSTO ? ' + juros acum.' : '') + ')' : 'Saldo sem juros') + ' × ' + taxa },
+        { t: 'Juros do mês', v: EN.AL[i], n: (D.jurosSemRetiradas || D.jurosSemProvisoes || D.jurosSemAdm || COMPOSTO ? '(' + ['Saldo sem juros'].concat(D.jurosSemRetiradas ? ['retiradas'] : []).concat(D.jurosSemProvisoes ? ['provisões'] : []).concat(D.jurosSemAdm ? ['adm. central'] : []).join(' − ') + (COMPOSTO ? ' + juros acum.' : '') + ')' : 'Saldo sem juros') + ' × ' + taxa },
         { t: 'Juros acumulados', v: EN.AM[i], n: 'Soma dos juros até o mês' },
         { t: 'Saldo com juros', v: EN.AN[i], n: (EN.AN[i] < -0.005 ? 'A favor da Tríade' : (EN.AN[i] > 0.005 ? 'A favor da Enpavi' : 'Zerado')), hl: true }
       ].filter(function(d){ return d; });
